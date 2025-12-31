@@ -13,26 +13,15 @@ using namespace std;
 
 // Adicionar aresta direcionada (Origem -> Destino)
 void Grafo::adicionarAresta(int origem, int destino, int peso){
+    // Insere o peso na matriz de adjacência
+    adj[origem][destino] = peso;
     if(tipo == NAO_DIRECIONADO){
-        // Cria a aresta e coloca na lista do nó de origem
-        Aresta novaAresta(origem, destino, peso);
-        adj[origem].push_back(novaAresta);
-
-        // Cria a aresta inversa e coloca na lista do nó de destino
-        Aresta arestaInversa(destino, origem, peso);
-        adj[destino].push_back(arestaInversa);
+        // Se for não direcionado, insere a aresta de volta
+        adj[destino][origem] = peso;
     }
-    else{
-        // Cria a aresta e coloca na lista do nó de origem
-        Aresta novaAresta(origem, destino, peso);
-        adj[origem].push_back(novaAresta);
-    }
-
-    // Se o grafo fosse NÃO-DIRECIONADO, você descomentaria a linha abaixo:
-    // adj[destino].push_back(Aresta(origem, peso));
 }
 
-void Grafo::dijkstra(int inicio)
+/*void Grafo::dijkstra(int inicio)
 {
     // Vetor de distâncias iniciada com "Infinito"
     vector<int> dist(numeroDeVertices, numeric_limits<int>::max());
@@ -74,9 +63,9 @@ void Grafo::dijkstra(int inicio)
     {
         cout << "No " << i << ": " << dist[i] << endl;
     }
-}
+}*/
 
-void Grafo::floyd(){
+/*void Grafo::floyd(){
     // Matriz de distâncias
     vector<vector<int>> dist(numeroDeVertices, vector<int>(numeroDeVertices, numeric_limits<int>::max()));
 
@@ -122,9 +111,9 @@ void Grafo::floyd(){
         }
         cout << endl;
     }
-}
+}*/
 
-void Grafo::buscaEmProfundidade(int inicio){
+/*void Grafo::buscaEmProfundidade(int inicio){
     if (inicio < 0 || inicio > numeroDeVertices - 1) return;
 
     // Inicializa vetor de visitados
@@ -154,28 +143,46 @@ void Grafo::buscaEmProfundidade(int inicio){
         }
     }
     cout << endl;
-}
+}*/
 
-void Grafo::kruskal(){
-    
-    
-}
-
+// Prim
+// Algoritmo para encontrar a Árvore Geradora Mínima (AGM)
+// Guloso
 void Grafo::prim(int r){
+    // Cria uma estrutura para as arestas
+    struct Aresta {
+        int origem;
+        int destino;
+        int peso;
+        
+        Aresta(int u, int v, int p) : origem(u), destino(v), peso(p) {}
+    };
+
+    // Lógica INVERTIDA para Min-Heap
+    // Usada para a PQ
+    struct ComparaPeso {
+        bool operator()(const Aresta& a, const Aresta& b) {
+            return a.peso > b.peso;
+        }
+    };
+
+    vector<Aresta> resultado;
+    int custoTotal = 0;
+
     // 1. Min-Heap para pegar sempre a aresta mais leve automaticamente
     // <Aresta, vector<Aresta>, Comparador>
     priority_queue<Aresta, vector<Aresta>, ComparaPeso> pq;
 
+    // 2. Vetor para marcar nós visitados
     vector<bool> visitado(numeroDeVertices, false);
     
     // Adiciona as arestas iniciais
     visitado[r] = true;
-    for(const auto& aresta : adj[r]){
-        pq.push(aresta);
+    for(int i = 0; i < numeroDeVertices; i++){
+        if(adj[r][i] != 0){ // Se existe aresta
+            pq.push(Aresta(r, i, adj[r][i]));
+        }
     }
-
-    vector<Aresta> resultado;
-    int custoTotal = 0;
 
     cout << "Iniciando Prim a partir do no " << r << "...\n";
 
@@ -198,9 +205,9 @@ void Grafo::prim(int r){
 
         // Adiciona as arestas do NOVO nó descoberto na fila
         // Elas vão competir com as arestas antigas que ainda estão lá
-        for(const auto& vizinha : adj[destino]){
-            if(!visitado[vizinha.destino]){
-                pq.push(vizinha);
+        for(int i = 0; i < numeroDeVertices; i++){
+            if(adj[destino][i] != 0 && !visitado[i]){
+                pq.push(Aresta(destino, i, adj[destino][i]));
             }
         }
     }
