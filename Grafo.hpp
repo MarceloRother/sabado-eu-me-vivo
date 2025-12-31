@@ -9,8 +9,12 @@
 
 using namespace std;
 
+enum GrafoTipo {
+    DIRECIONADO,
+    NAO_DIRECIONADO
+};
+
 // 1. Estrutura da Aresta
-// Simples, apenas dados. Não precisa de métodos complexos.
 struct Aresta {
     int origem;
     int destino; // O índice do nó para onde essa aresta aponta
@@ -20,24 +24,24 @@ struct Aresta {
     Aresta(int u, int v, int p) : origem(u), destino(v), peso(p) {}
 };
 
-// 2. Estrutura do Nó (Opcional)
-// Só necessária se o nó tiver nome ou dados. 
-// Se for só numero, o índice do vetor já basta.
+// 2. Estrutura do Nó
 struct No {
     int id;
     string nome;
 };
 
+// Comparador para a fila de prioridade (usado em Prim e Kruskal)
 struct ComparaPeso {
     bool operator()(const Aresta& a, const Aresta& b){
         return a.peso > b.peso;
     }
 };
 
-// 3. A Classe Grafo (O "Gerente")
+// 3. A Classe Grafo
 class Grafo {
 private:
     int numeroDeVertices;
+    GrafoTipo tipo;
     
     // O CORAÇÃO DO GRAFO: Lista de Adjacência
     // Um vetor onde cada posição é uma lista de arestas
@@ -49,12 +53,15 @@ private:
 
 public:
     // Construtor
-    Grafo(int vertices) {
+    Grafo(int vertices, GrafoTipo t) : tipo(t) {
         this->numeroDeVertices = vertices;
         adj.resize(vertices); // Prepara o vetor para receber os dados
     }
 
+    // Retorna o número de vértices
     int getNumeroDeVertices(){ return numeroDeVertices; }
+
+    GrafoTipo getTipo(){ return tipo; }
 
     // Adicionar aresta direcionada (Origem -> Destino)
     void adicionarAresta(int origem, int destino, int peso);

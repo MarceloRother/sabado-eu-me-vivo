@@ -12,11 +12,21 @@
 using namespace std;
 
 // Adicionar aresta direcionada (Origem -> Destino)
-void Grafo::adicionarAresta(int origem, int destino, int peso)
-{
-    // Cria a aresta e coloca na lista do nó de origem
-    Aresta novaAresta(origem, destino, peso);
-    adj[origem].push_back(novaAresta);
+void Grafo::adicionarAresta(int origem, int destino, int peso){
+    if(tipo == NAO_DIRECIONADO){
+        // Cria a aresta e coloca na lista do nó de origem
+        Aresta novaAresta(origem, destino, peso);
+        adj[origem].push_back(novaAresta);
+
+        // Cria a aresta inversa e coloca na lista do nó de destino
+        Aresta arestaInversa(destino, origem, peso);
+        adj[destino].push_back(arestaInversa);
+    }
+    else{
+        // Cria a aresta e coloca na lista do nó de origem
+        Aresta novaAresta(origem, destino, peso);
+        adj[origem].push_back(novaAresta);
+    }
 
     // Se o grafo fosse NÃO-DIRECIONADO, você descomentaria a linha abaixo:
     // adj[destino].push_back(Aresta(origem, peso));
