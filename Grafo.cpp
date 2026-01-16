@@ -246,11 +246,11 @@ void Grafo::random(int r, int k){
     vector<Aresta> resultado;
     int custoTotal = 0;
 
-    // 1. Min-Heap para pegar sempre a aresta mais leve automaticamente
+    // Min-Heap para pegar sempre a aresta mais leve automaticamente
     // <Aresta, vector<Aresta>, Comparador>
     priority_queue<Aresta, vector<Aresta>, ComparaPeso> pq;
 
-    // 2. Vetor para marcar nós visitados
+    // Vetor para marcar nós visitados
     vector<bool> visitado(numeroDeVertices, false);
     
     // Adiciona as arestas iniciais
@@ -263,11 +263,10 @@ void Grafo::random(int r, int k){
 
     while(!pq.empty()){
         
-        // 1. Criar lista temporária de candidatos para ESTA rodada
+        // Criar lista temporária de candidatos para ESTA rodada
         vector<Aresta> candidatos;
         
-        // Tenta pegar até 'k' arestas, mas ignora as inválidas (já visitadas)
-        // Isso evita encher a lista de lixo
+        // Tenta pegar até 'k' arestas, mas ignora as inválidas
         int contagem = 0;
         while(!pq.empty() && contagem < k) {
             Aresta a = pq.top();
@@ -282,11 +281,11 @@ void Grafo::random(int r, int k){
         // Se não achou nenhum candidato válido, acabou (ou grafo desconexo)
         if (candidatos.empty()) break;
 
-        // 2. Sorteia um índice entre os candidatos válidos coletados
+        // Sorteia um índice entre os candidatos válidos coletados
         int escolha = rand() % candidatos.size();
         Aresta arestaEscolhida = candidatos[escolha];
 
-        // 3. IMPORTANTE: Devolve os NÃO escolhidos para a fila principal
+        // IMPORTANTE: Devolve os NÃO escolhidos para a fila principal
         // Eles ainda são boas opções para o futuro!
         for(int i = 0; i < candidatos.size(); i++) {
             if (i != escolha) {
@@ -294,19 +293,15 @@ void Grafo::random(int r, int k){
             }
         }
 
-        // 4. Processa a aresta vencedora
+        // Processa a aresta vencedora
         int u = arestaEscolhida.origem; // Se precisar
         int v = arestaEscolhida.destino;
-
-        // O 'if visitado' aqui é redundante pois filtramos antes, 
-        // mas mal não faz (seguro morreu de velho)
-        if(visitado[v]) continue; 
-
+            
         visitado[v] = true;
         resultado.push_back(arestaEscolhida);
         custoTotal += arestaEscolhida.peso;
 
-        // 5. Adiciona os vizinhos do novo nó
+        // Adiciona os vizinhos do novo nó
         for(int i = 0; i < numeroDeVertices; i++){
             // Assumindo matriz de adjacência (peso 0 = sem aresta)
             if(adj[v][i] != 0 && !visitado[i]){
