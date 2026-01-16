@@ -15,14 +15,14 @@ enum GrafoTipo {
 };
 
 // 1. Estrutura da Aresta
-struct Aresta {
-    int origem;
-    int destino; // O índice do nó para onde essa aresta aponta
-    int peso;
+// struct Aresta {
+//     int origem;
+//     int destino; // O índice do nó para onde essa aresta aponta
+//     int peso;
     
-    // Construtor para facilitar a criação
-    Aresta(int u, int v, int p) : origem(u), destino(v), peso(p) {}
-};
+//     // Construtor para facilitar a criação
+//     Aresta(int u, int v, int p) : origem(u), destino(v), peso(p) {}
+// };
 
 // 2. Estrutura do Nó
 struct No {
@@ -31,11 +31,11 @@ struct No {
 };
 
 // Comparador para a fila de prioridade (usado em Prim e Kruskal)
-struct ComparaPeso {
-    bool operator()(const Aresta& a, const Aresta& b){
-        return a.peso > b.peso;
-    }
-};
+// struct ComparaPeso {
+//     bool operator()(const Aresta& a, const Aresta& b){
+//         return a.peso > b.peso;
+//     }
+// };
 
 // 3. A Classe Grafo
 class Grafo {
@@ -43,10 +43,10 @@ private:
     int numeroDeVertices;
     GrafoTipo tipo;
     
-    // O CORAÇÃO DO GRAFO: Lista de Adjacência
-    // Um vetor onde cada posição é uma lista de arestas
-    // adj[0] = lista de arestas saindo do nó 0
-    vector<list<Aresta>> adj; 
+    // O CORAÇÃO DO GRAFO: Matriz de Adjacência
+    // Um vetor onde cada posição é um vector contedo o peso das arestas para cada nó
+    // adj[0] = lista dos pesos arestas saindo do nó 0
+    vector<vector<int>> adj;
     
     // Se quiser guardar nomes dos nós, use um vetor auxiliar:
     // vector<No> dadosDosNos;
@@ -56,6 +56,7 @@ public:
     Grafo(int vertices, GrafoTipo t) : tipo(t) {
         this->numeroDeVertices = vertices;
         adj.resize(vertices); // Prepara o vetor para receber os dados
+        this->adj = vector<vector<int>>(vertices, vector<int>(vertices, 0)); // Inicializa com 0 (sem arestas)
     }
 
     // Retorna o número de vértices
@@ -67,13 +68,14 @@ public:
     void adicionarAresta(int origem, int destino, int peso);
 
     // 4. Algoritmos de caminho mínimo
-    void dijkstra(int inicio);
-    void floyd();
+    //void dijkstra(int inicio);
+    //void floyd();
 
     // 5. Algoritmo de busca
     void buscaEmProfundidade(int inicio);
     void kruskal();
-    void prim(int r);   
+    void prim(int r);
+    void random(int r, int k);
 };
 
 #endif GRAFO_HPP
