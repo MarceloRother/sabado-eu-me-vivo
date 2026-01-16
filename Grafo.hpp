@@ -68,14 +68,14 @@ public:
     void adicionarAresta(int origem, int destino, int peso);
 
     // 4. Algoritmos de caminho mínimo
-    void dijkstra(int inicio);
-    void floyd();
+    //void dijkstra(int inicio);
+    //void floyd();
 
     // 5. Algoritmo de busca
     void buscaEmProfundidade(int inicio);
     void kruskal();
     void prim(int r);
-    void primRandom(int r);
+    void random(int r, int k);
 };
 
 #endif GRAFO_HPP

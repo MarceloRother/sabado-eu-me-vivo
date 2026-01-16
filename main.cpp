@@ -1,3 +1,6 @@
+//TODO: fazer verificação para saber se m está dentro do escopo
+
+
 #include <iostream>
 #include <vector>
 #include <list>
@@ -26,6 +29,7 @@ int main() {
         cout << "1 - Dijkstra\n";
         cout << "2 - Floyd-Warshall\n";
         cout << "3 - Prim\n";
+        cout << "4 - Algoritmo Guloso Randomizado\n";
         cout << "0 - Sair\n";
 
         cin >> escolha;
@@ -36,16 +40,24 @@ int main() {
             cout << "Escolha um nó de partida de 0 a "<< g.getNumeroDeVertices() - 1 << ":\n";
             int n;
             cin >> n;
-            g.dijkstra(n);
+            //g.dijkstra(n);
             break;
         case 2:
-            g.floyd();
+            //g.floyd();
             break;
         case 3:
             cout << "Escolha um nó de partida de 0 a "<< g.getNumeroDeVertices() - 1 << ":\n";
             int m;
             cin >> m;
             g.prim(m);
+            break;
+        case 4:
+            int r, k;
+            cout << "Escolha um nó de partida de 0 a " << g.getNumeroDeVertices() - 1 << ":\n";
+            cin >> r;
+            cout << "Escolha uma porcentagem de 0 até 100:\n";
+            cin >> k;
+            g.random(r, k/10);
             break;
         case 0:
             cout << "Saindo...\n";
