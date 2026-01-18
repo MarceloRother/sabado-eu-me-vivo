@@ -75,7 +75,7 @@ public:
     void buscaEmProfundidade(int inicio);
     void kruskal();
     void prim(int r);
-    void random(int r, int k);
+    void GRASP(int r, int alpha, int interacoes);
 };
 
 #endif GRAFO_HPP

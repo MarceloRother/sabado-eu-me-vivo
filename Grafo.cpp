@@ -11,11 +11,33 @@
 
 using namespace std;
 
+// Cria uma estrutura para as arestas
+struct Aresta
+{
+    int origem;
+    int destino;
+    int peso;
+
+    Aresta(int u, int v, int p) : origem(u), destino(v), peso(p) {}
+};
+
+// Lógica INVERTIDA para Min-Heap
+// Usada para a PQ
+struct ComparaPeso
+{
+    bool operator()(const Aresta &a, const Aresta &b)
+    {
+        return a.peso > b.peso;
+    }
+};
+
 // Adicionar aresta direcionada (Origem -> Destino)
-void Grafo::adicionarAresta(int origem, int destino, int peso){
+void Grafo::adicionarAresta(int origem, int destino, int peso)
+{
     // Insere o peso na matriz de adjacência
     adj[origem][destino] = peso;
-    if(tipo == NAO_DIRECIONADO){
+    if (tipo == NAO_DIRECIONADO)
+    {
         // Se for não direcionado, insere a aresta de volta
         adj[destino][origem] = peso;
     }
@@ -148,24 +170,8 @@ void Grafo::adicionarAresta(int origem, int destino, int peso){
 // Prim
 // Algoritmo para encontrar a Árvore Geradora Mínima (AGM)
 // Guloso
-void Grafo::prim(int r){
-    // Cria uma estrutura para as arestas
-    struct Aresta {
-        int origem;
-        int destino;
-        int peso;
-        
-        Aresta(int u, int v, int p) : origem(u), destino(v), peso(p) {}
-    };
-
-    // Lógica INVERTIDA para Min-Heap
-    // Usada para a PQ
-    struct ComparaPeso {
-        bool operator()(const Aresta& a, const Aresta& b) {
-            return a.peso > b.peso;
-        }
-    };
-
+void Grafo::prim(int r)
+{
     vector<Aresta> resultado;
     int custoTotal = 0;
 
@@ -175,18 +181,21 @@ void Grafo::prim(int r){
 
     // 2. Vetor para marcar nós visitados
     vector<bool> visitado(numeroDeVertices, false);
-    
+
     // Adiciona as arestas iniciais
     visitado[r] = true;
-    for(int i = 0; i < numeroDeVertices; i++){
-        if(adj[r][i] != 0){ // Se existe aresta
+    for (int i = 0; i < numeroDeVertices; i++)
+    {
+        if (adj[r][i] != 0)
+        { // Se existe aresta
             pq.push(Aresta(r, i, adj[r][i]));
         }
     }
 
     cout << "Iniciando Prim a partir do no " << r << "...\n";
 
-    while(!pq.empty()){
+    while (!pq.empty())
+    {
         // Pega a aresta mais leve disponível (de QUALQUER nó visitado anteriormente)
         Aresta atual = pq.top();
         pq.pop();
@@ -194,7 +203,8 @@ void Grafo::prim(int r){
         int destino = atual.destino;
 
         // SE O DESTINO JÁ FOI VISITADO, IGNORA (Evita ciclos)
-        if(visitado[destino]) {
+        if (visitado[destino])
+        {
             continue;
         }
 
@@ -205,8 +215,10 @@ void Grafo::prim(int r){
 
         // Adiciona as arestas do NOVO nó descoberto na fila
         // Elas vão competir com as arestas antigas que ainda estão lá
-        for(int i = 0; i < numeroDeVertices; i++){
-            if(adj[destino][i] != 0 && !visitado[i]){
+        for (int i = 0; i < numeroDeVertices; i++)
+        {
+            if (adj[destino][i] != 0 && !visitado[i])
+            {
                 pq.push(Aresta(destino, i, adj[destino][i]));
             }
         }
@@ -214,8 +226,9 @@ void Grafo::prim(int r){
 
     // Impressão
     cout << "Arestas da AGM (Prim):\n";
-    for(const auto& aresta : resultado){
-        cout << aresta.origem << " -- " << aresta.destino 
+    for (const auto &aresta : resultado)
+    {
+        cout << aresta.origem << " -- " << aresta.destino
              << " (Peso: " << aresta.peso << ")\n";
     }
     cout << "Custo Total: " << custoTotal << endl;
@@ -224,96 +237,120 @@ void Grafo::prim(int r){
 // Algoritmo Guloso Randomizado (baseado em Prim)
 // Não segue a lógica tradicional de um algoritmo guloso
 // A cada iteração ele tem k opções (as k menores arestas disponíveis) e escolhe uma aleatoriamente
-void Grafo::random(int r, int k){
-    // Implementação alternativa de Prim (se necessário)
-    // Cria uma estrutura para as arestas
-    struct Aresta {
-        int origem;
-        int destino;
-        int peso;
-        
-        Aresta(int u, int v, int p) : origem(u), destino(v), peso(p) {}
-    };
-
-    // Lógica INVERTIDA para Min-Heap
-    // Usada para a PQ
-    struct ComparaPeso {
-        bool operator()(const Aresta& a, const Aresta& b) {
-            return a.peso > b.peso;
-        }
-    };
-
-    vector<Aresta> resultado;
-    int custoTotal = 0;
-
-    // Min-Heap para pegar sempre a aresta mais leve automaticamente
-    // <Aresta, vector<Aresta>, Comparador>
-    priority_queue<Aresta, vector<Aresta>, ComparaPeso> pq;
-
-    // Vetor para marcar nós visitados
-    vector<bool> visitado(numeroDeVertices, false);
-    
-    // Adiciona as arestas iniciais
-    visitado[r] = true;
-    for(int i = 0; i < numeroDeVertices; i++){
-        if(adj[r][i] != 0){ // Se existe aresta
-            pq.push(Aresta(r, i, adj[r][i]));
-        }
-    }
-
-    while(!pq.empty()){
-        
-        // Criar lista temporária de candidatos para ESTA rodada
-        vector<Aresta> candidatos;
-        
-        // Tenta pegar até 'k' arestas, mas ignora as inválidas
-        int contagem = 0;
-        while(!pq.empty() && contagem < k) {
-            Aresta a = pq.top();
-            pq.pop();
-            
-            if(!visitado[a.destino]) {
-                candidatos.push_back(a);
-                contagem++;
-            }
-        }
-
-        // Se não achou nenhum candidato válido, acabou (ou grafo desconexo)
-        if (candidatos.empty()) break;
-
-        // Sorteia um índice entre os candidatos válidos coletados
-        int escolha = rand() % candidatos.size();
-        Aresta arestaEscolhida = candidatos[escolha];
-
-        // IMPORTANTE: Devolve os NÃO escolhidos para a fila principal
-        // Eles ainda são boas opções para o futuro!
-        for(int i = 0; i < candidatos.size(); i++) {
-            if (i != escolha) {
-                pq.push(candidatos[i]);
-            }
-        }
-
-        // Processa a aresta vencedora
-        int u = arestaEscolhida.origem; // Se precisar
-        int v = arestaEscolhida.destino;
-            
-        visitado[v] = true;
-        resultado.push_back(arestaEscolhida);
-        custoTotal += arestaEscolhida.peso;
-
-        // Adiciona os vizinhos do novo nó
-        for(int i = 0; i < numeroDeVertices; i++){
-            // Assumindo matriz de adjacência (peso 0 = sem aresta)
-            if(adj[v][i] != 0 && !visitado[i]){
-                pq.push(Aresta(v, i, adj[v][i]));
-            }
-        }
-    }
-    // Impressão
+void Grafo::GRASP(int r, int alpha, int interacoes)
+{
     cout << "Arestas do Algoritmo Guloso Randomizado:\n";
-    for(const auto& aresta : resultado){
-        cout << aresta.origem << " -- " << aresta.destino 
-             << " (Peso: " << aresta.peso << ")\n";
+    int custoFinal = 0;
+
+    for (int iter = 0; iter < interacoes; iter++)
+    {
+        vector<Aresta> resultado;
+        int custoTotal = 0;
+
+        // Min-Heap para pegar sempre a aresta mais leve automaticamente
+        priority_queue<Aresta, vector<Aresta>, ComparaPeso> pq;
+
+        // Vetor para marcar nós visitados
+        vector<bool> visitado(numeroDeVertices, false);
+
+        // Adiciona as arestas iniciais
+        visitado[r] = true;
+        for (int i = 0; i < numeroDeVertices; i++)
+        {
+            if (adj[r][i] != 0)
+            { // Se existe aresta
+                pq.push(Aresta(r, i, adj[r][i]));
+            }
+        }
+        while (!pq.empty())
+        {
+            // Criar lista temporária de candidatos para ESTA rodada
+            vector<Aresta> candidatos;
+
+            // Tenta pegar até 'k' arestas, mas ignora as inválidas
+            while (!pq.empty())
+            {
+                Aresta a = pq.top();
+                pq.pop();
+                if (!visitado[a.destino])
+                {
+                    candidatos.push_back(a);
+                }
+            }
+
+            // Se não achou nenhum candidato válido, acabou (ou grafo desconexo)
+            if (candidatos.empty())
+                break;
+
+            // Identifica c_min e c_max
+            float c_min = candidatos.front().peso; // Como saiu da PQ, o 1º é o menor
+            float c_max = candidatos.back().peso;  // O último é o maior
+
+            // Calcula o Limite (Threshold)
+            float limite = c_min + alpha * (c_max - c_min);
+
+            // 4. Cria a LRC (Lista Restrita de Candidatos) filtrando pelo limite
+            vector<Aresta> LRC;
+            for (auto &a : candidatos)
+            {
+                if (a.peso <= limite)
+                {
+                    LRC.push_back(a);
+                }
+                else
+                {
+                    // Como está ordenado, se passou do limite, os próximos também passarão
+                    // Mas PRECISAMOS salvar para devolver pra PQ depois
+                    break;
+                }
+            }
+
+            // Sorteia um índice entre os candidatos válidos coletados
+            int escolha = rand() % LRC.size();
+            Aresta arestaEscolhida = LRC[escolha];
+
+            // Devolve os NÃO escolhidos para a fila principal
+            for (auto &a : candidatos)
+            {
+                // Cuidado para não devolver a aresta escolhida nem arestas para nós já visitados
+                if (a.destino != arestaEscolhida.destino && !visitado[a.destino])
+                {
+                    pq.push(a);
+                }
+            }
+
+            // Processa a aresta vencedora
+            int u = arestaEscolhida.origem; // Se precisar
+            int v = arestaEscolhida.destino;
+
+            // Altera o valor de visitado
+            visitado[v] = true;
+            resultado.push_back(arestaEscolhida);
+            custoTotal += arestaEscolhida.peso;
+
+            // Adiciona os vizinhos do novo nó
+            for (int i = 0; i < numeroDeVertices; i++)
+            {
+                // Assumindo matriz de adjacência (peso 0 = sem aresta)
+                if (adj[v][i] != 0 && !visitado[i])
+                {
+                    pq.push(Aresta(v, i, adj[v][i]));
+                }
+            }
+        }
+        // Impressão
+        cout << "Iteração " << iter + 1 << ":\n";
+        for (const auto &aresta : resultado)
+        {
+            cout << aresta.origem << " -- " << aresta.destino
+                 << " (Peso: " << aresta.peso << ")\n";
+        }
+        cout << "Custo Total: " << custoTotal << endl;
+
+        if(iter == 0 || custoTotal < custoFinal) {
+            custoFinal = custoTotal;
+        }
     }
-    cout << "Custo Total: " << custoTotal << endl;
+
+    cout << "Melhor custo: " << custoFinal << endl;
 }
