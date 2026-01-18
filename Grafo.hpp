@@ -14,55 +14,45 @@ enum GrafoTipo {
     NAO_DIRECIONADO
 };
 
-// 1. Estrutura da Aresta
-// struct Aresta {
-//     int origem;
-//     int destino; // O índice do nó para onde essa aresta aponta
-//     int peso;
-    
-//     // Construtor para facilitar a criação
-//     Aresta(int u, int v, int p) : origem(u), destino(v), peso(p) {}
-// };
-
 // 2. Estrutura do Nó
 struct No {
     int id;
-    string nome;
+    int conexoes;
 };
 
-// Comparador para a fila de prioridade (usado em Prim e Kruskal)
-// struct ComparaPeso {
-//     bool operator()(const Aresta& a, const Aresta& b){
-//         return a.peso > b.peso;
-//     }
-// };
-
-// 3. A Classe Grafo
+// A Classe Grafo
 class Grafo {
 private:
     int numeroDeVertices;
-    GrafoTipo tipo;
+    //GrafoTipo tipo;
     
     // O CORAÇÃO DO GRAFO: Matriz de Adjacência
     // Um vetor onde cada posição é um vector contedo o peso das arestas para cada nó
     // adj[0] = lista dos pesos arestas saindo do nó 0
     vector<vector<int>> adj;
+    vector<No> nos;
     
     // Se quiser guardar nomes dos nós, use um vetor auxiliar:
     // vector<No> dadosDosNos;
 
 public:
     // Construtor
-    Grafo(int vertices, GrafoTipo t) : tipo(t) {
-        this->numeroDeVertices = vertices;
+    Grafo(int vertices){
         adj.resize(vertices); // Prepara o vetor para receber os dados
         this->adj = vector<vector<int>>(vertices, vector<int>(vertices, 0)); // Inicializa com 0 (sem arestas)
+        this->nos = vector<No>(vertices);
+
+        this->numeroDeVertices = vertices;
+        for(int i = 0; i < vertices; i++){
+            nos[i].id = i;
+            nos[i].conexoes = 0;
+        }
     }
 
     // Retorna o número de vértices
     int getNumeroDeVertices(){ return numeroDeVertices; }
 
-    GrafoTipo getTipo(){ return tipo; }
+    //GrafoTipo getTipo(){ return tipo; }
 
     // Adicionar aresta direcionada (Origem -> Destino)
     void adicionarAresta(int origem, int destino, int peso);

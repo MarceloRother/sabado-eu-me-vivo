@@ -35,12 +35,15 @@ struct ComparaPeso
 void Grafo::adicionarAresta(int origem, int destino, int peso)
 {
     // Insere o peso na matriz de adjacência
-    adj[origem][destino] = peso;
+    /*adj[origem][destino] = peso;
     if (tipo == NAO_DIRECIONADO)
     {
         // Se for não direcionado, insere a aresta de volta
         adj[destino][origem] = peso;
-    }
+    }*/
+
+    adj[origem][destino] = peso;
+    adj[destino][origem] = peso;
 }
 
 // IMPLEMENTAÇÕES DOS ALGORITMOS
@@ -73,8 +76,19 @@ void Grafo::GA()
     while (!pq.empty())
     {
         // Pega a aresta mais leve disponível (de QUALQUER nó visitado anteriormente)
-        Aresta atual = pq.top();
-        pq.pop();
+        Aresta atual{0, 0, 0};
+        while (true)
+        {
+            // ADAPTAÇÃO PARA RESTRIÇÃO DE 6 CONEXÕES POR NÓ
+            // Verifica se os nós possuem até 6 conexões
+            // Se sim, aceita a aresta
+            atual = pq.top();
+            pq.pop();
+            if (nos[atual.origem].conexoes < 6 && nos[atual.destino].conexoes < 6)
+            {
+                break;
+            }
+        }
 
         int destino = atual.destino;
 
