@@ -128,7 +128,7 @@ void Grafo::GA()
 // Não segue a lógica tradicional de um algoritmo guloso
 // Ele cria uma lista restrita de candidatos (LRC) e escolhe aleatoriamente entre eles
 // LRC baseada em um alpha fixo que define o quão "restrita" ela é
-void Grafo::GRASP(int alpha, int interacoes)
+void Grafo::GRASP(float alpha, int interacoes, int d)
 {
     cout << "Algoritmo Guloso Randomizado:\n";
     int custoFinal = 0;
@@ -153,6 +153,12 @@ void Grafo::GRASP(int alpha, int interacoes)
                 pq.push(Aresta(0, i, adj[0][i]));
             }
         }
+
+        // Reseta os graus dos nós para cada iteração do GRASP
+        for(int i=0; i<numeroDeVertices; i++) {
+            nos[i].conexoes = 0;
+        }
+        
         while (!pq.empty())
         {
             // Criar lista temporária de candidatos para ESTA rodada
@@ -163,14 +169,16 @@ void Grafo::GRASP(int alpha, int interacoes)
             {
                 Aresta a = pq.top();
                 pq.pop();
-
-                // ADAPTAÇÃO PARA RESTRIÇÃO DE 6 CONEXÕES POR NÓ
-                // Verifica se os nós possuem até 6 conexões
-                if( nos[a.origem].conexoes < 6 && nos[a.destino].conexoes < 6 ){
+                
+                // ADAPTAÇÃO PARA RESTRIÇÃO DE CONEXÕES POR NÓ
+                // Verifica se os nós possuem até d conexões
+                if( nos[a.origem].conexoes < d && nos[a.destino].conexoes < d){
                     // Só adiciona se o nó destino não foi visitado ainda
                     if (!visitado[a.destino])
                     {
                         candidatos.push_back(a);
+                        nos[a.origem].conexoes++;
+                        nos[a.destino].conexoes++;
                     }
                 }
             }
