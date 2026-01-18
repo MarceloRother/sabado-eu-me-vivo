@@ -46,7 +46,7 @@ void Grafo::adicionarAresta(int origem, int destino, int peso)
 // IMPLEMENTAÇÕES DOS ALGORITMOS
 
 // GA para encontrar a Árvore Geradora Mínima (AGM) baseado em Prim
-void Grafo::GA(int r)
+void Grafo::GA()
 {
     vector<Aresta> resultado;
     int custoTotal = 0;
@@ -59,16 +59,16 @@ void Grafo::GA(int r)
     vector<bool> visitado(numeroDeVertices, false);
 
     // Adiciona as arestas iniciais
-    visitado[r] = true;
+    visitado[0] = true;
     for (int i = 0; i < numeroDeVertices; i++)
     {
-        if (adj[r][i] != 0)
+        if (adj[0][i] != 0)
         { // Se existe aresta
-            pq.push(Aresta(r, i, adj[r][i]));
+            pq.push(Aresta(0, i, adj[0][i]));
         }
     }
 
-    cout << "Iniciando Prim a partir do no " << r << "...\n";
+    cout << "Iniciando Prim a partir do no " << 0 << "...\n";
 
     while (!pq.empty())
     {
