@@ -1,4 +1,4 @@
-#include "Grafo.hpp"
+#include "../include/Grafo.hpp"
 
 #include <iostream>
 #include <vector>
@@ -339,6 +339,7 @@ void Grafo::GRASPReativo(int escolha, int interacoes, int block)
         float alphaEscolhido = alphas[indiceSorteado];
 
         // LÓGICA PRINCIPAL DO GRASP REATIVO
+
         // A partir daqui, a lógica é igual ao GRASP normal, mas usando o alpha dinâmico
         vector<Aresta> resultado;
         int custoTotal = 0;
@@ -368,9 +369,12 @@ void Grafo::GRASPReativo(int escolha, int interacoes, int block)
             {
                 Aresta a = pq.top();
                 pq.pop();
-                if (!visitado[a.destino])
-                {
-                    candidatos.push_back(a);
+                if( nos[a.origem].conexoes < 6 && nos[a.destino].conexoes < 6 ){
+                    // Só adiciona se o nó destino não foi visitado ainda
+                    if (!visitado[a.destino])
+                    {
+                        candidatos.push_back(a);
+                    }
                 }
             }
 
