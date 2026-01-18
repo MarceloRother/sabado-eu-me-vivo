@@ -24,6 +24,7 @@ struct No {
 class Grafo {
 private:
     int numeroDeVertices;
+    int restricaoConexoes;
     //GrafoTipo tipo;
     
     // O CORAÇÃO DO GRAFO: Matriz de Adjacência
@@ -43,14 +44,20 @@ public:
         this->nos = vector<No>(vertices);
 
         this->numeroDeVertices = vertices;
+        this->restricaoConexoes = vertices - 1;
         for(int i = 0; i < vertices; i++){
             nos[i].id = i;
             nos[i].conexoes = 0;
         }
     }
 
+    void setRestricaoConexoes(int r){
+        this->restricaoConexoes = r;
+    }
+
     // Retorna o número de vértices
     int getNumeroDeVertices(){ return numeroDeVertices; }
+    int getRestricaoConexoes(){ return restricaoConexoes; }
 
     //GrafoTipo getTipo(){ return tipo; }
 
@@ -58,8 +65,8 @@ public:
     void adicionarAresta(int origem, int destino, int peso);
 
     // IMPLEMENTAÇÕES DOS ALGORITMOS
-    void GA();
-    void GRASP(int alpha, int interacoes);
+    void GA(int d);
+    void GRASP(float alpha, int interacoes, int d);
     void GRASPReativo(int escolha, int interacoes, int block);
 };
 

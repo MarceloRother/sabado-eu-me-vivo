@@ -1,4 +1,4 @@
-#include "Grafo.hpp"
+#include "../include/Grafo.hpp"
 
 #include <iostream>
 #include <vector>
@@ -49,86 +49,81 @@ void Grafo::adicionarAresta(int origem, int destino, int peso)
 // IMPLEMENTAÇÕES DOS ALGORITMOS
 
 // GA para encontrar a Árvore Geradora Mínima (AGM) baseado em Prim
-void Grafo::GA()
+void Grafo::GA(int d)
 {
     vector<Aresta> resultado;
     int custoTotal = 0;
 
-    // 1. Min-Heap para pegar sempre a aresta mais leve automaticamente
-    // <Aresta, vector<Aresta>, Comparador>
-    priority_queue<Aresta, vector<Aresta>, ComparaPeso> pq;
+    // Reinicia o contador de conexões (importante se rodar várias vezes)
+    for(int i=0; i<numeroDeVertices; i++) nos[i].conexoes = 0;
 
-    // 2. Vetor para marcar nós visitados
+    priority_queue<Aresta, vector<Aresta>, ComparaPeso> pq;
     vector<bool> visitado(numeroDeVertices, false);
 
-    // Adiciona as arestas iniciais
+    // Configuração inicial (Nó 0)
     visitado[0] = true;
-    for (int i = 0; i < numeroDeVertices; i++)
-    {
-        if (adj[0][i] != 0)
-        { // Se existe aresta
+    for (int i = 0; i < numeroDeVertices; i++) {
+        if (adj[0][i] != 0) {
             pq.push(Aresta(0, i, adj[0][i]));
         }
     }
 
-    cout << "Iniciando Prim a partir do no " << 0 << "...\n";
+    cout << "Iniciando Prim (Guloso) com d = " << d << "...\n";
 
     while (!pq.empty())
     {
-        // Pega a aresta mais leve disponível (de QUALQUER nó visitado anteriormente)
-        Aresta atual{0, 0, 0};
-        while (true)
-        {
-            // ADAPTAÇÃO PARA RESTRIÇÃO DE 6 CONEXÕES POR NÓ
-            // Verifica se os nós possuem até 6 conexões
-            // Se sim, aceita a aresta
-            atual = pq.top();
-            pq.pop();
-            if (nos[atual.origem].conexoes < 6 && nos[atual.destino].conexoes < 6)
-            {
-                break;
-            }
-        }
+        Aresta atual = pq.top();
+        pq.pop();
 
-        int destino = atual.destino;
+        int u = atual.origem;
+        int v = atual.destino;
 
-        // SE O DESTINO JÁ FOI VISITADO, IGNORA (Evita ciclos)
-        if (visitado[destino])
-        {
+        // VERIFICAÇÃO DE CICLO
+        if (visitado[v]) {
             continue;
         }
 
-        // Se não foi visitado, aceitamos a aresta na AGM
-        visitado[destino] = true;
+        // VERIFICAÇÃO DE GRAU (DCMST)
+        if (nos[u].conexoes >= d || nos[v].conexoes >= d) {
+            continue; // Ignora aresta que viola a restrição
+        }
+
+        // EFETIVAÇÃO
+        visitado[v] = true;
+        nos[u].conexoes++; // Incrementa origem
+        nos[v].conexoes++; // Incrementa destino
+        
         resultado.push_back(atual);
         custoTotal += atual.peso;
 
-        // Adiciona as arestas do NOVO nó descoberto na fila
-        // Elas vão competir com as arestas antigas que ainda estão lá
-        for (int i = 0; i < numeroDeVertices; i++)
-        {
-            if (adj[destino][i] != 0 && !visitado[i])
-            {
-                pq.push(Aresta(destino, i, adj[destino][i]));
+        // ADICIONA VIZINHOS
+        for (int i = 0; i < numeroDeVertices; i++) {
+            // Só adiciona vizinhos não visitados para economizar memória na PQ
+            if (adj[v][i] != 0 && !visitado[i]) {
+                pq.push(Aresta(v, i, adj[v][i]));
             }
         }
     }
 
     // Impressão
     cout << "Arestas da AGM (Prim):\n";
-    for (const auto &aresta : resultado)
-    {
+    for (const auto &aresta : resultado) {
         cout << aresta.origem << " -- " << aresta.destino
              << " (Peso: " << aresta.peso << ")\n";
     }
     cout << "Custo Total: " << custoTotal << endl;
+    
+    // Verificação de segurança: Se o grafo desconectou por causa do grau
+    if (resultado.size() != numeroDeVertices - 1) {
+        cout << "ALERTA: Nao foi possivel conectar todos os nos com a restricao d=" << d << endl;
+    }
 }
 
 // Algoritmo Guloso Randomizado (baseado em Prim)
 // Não segue a lógica tradicional de um algoritmo guloso
 // Ele cria uma lista restrita de candidatos (LRC) e escolhe aleatoriamente entre eles
 // LRC baseada em um alpha fixo que define o quão "restrita" ela é
-void Grafo::GRASP(int alpha, int interacoes)
+void Grafo::GRASP(float alpha, int interacoes, int d)
 {
     cout << "Algoritmo Guloso Randomizado:\n";
     int custoFinal = 0;
@@ -153,6 +148,12 @@ void Grafo::GRASP(int alpha, int interacoes)
                 pq.push(Aresta(0, i, adj[0][i]));
             }
         }
+
+        // Reseta os graus dos nós para cada iteração do GRASP
+        for(int i=0; i<numeroDeVertices; i++) {
+            nos[i].conexoes = 0;
+        }
+        
         while (!pq.empty())
         {
             // Criar lista temporária de candidatos para ESTA rodada
@@ -163,14 +164,16 @@ void Grafo::GRASP(int alpha, int interacoes)
             {
                 Aresta a = pq.top();
                 pq.pop();
-
-                // ADAPTAÇÃO PARA RESTRIÇÃO DE 6 CONEXÕES POR NÓ
-                // Verifica se os nós possuem até 6 conexões
-                if( nos[a.origem].conexoes < 6 && nos[a.destino].conexoes < 6 ){
+                
+                // ADAPTAÇÃO PARA RESTRIÇÃO DE CONEXÕES POR NÓ
+                // Verifica se os nós possuem até d conexões
+                if( nos[a.origem].conexoes < d && nos[a.destino].conexoes < d){
                     // Só adiciona se o nó destino não foi visitado ainda
                     if (!visitado[a.destino])
                     {
                         candidatos.push_back(a);
+                        nos[a.origem].conexoes++;
+                        nos[a.destino].conexoes++;
                     }
                 }
             }

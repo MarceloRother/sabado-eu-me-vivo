@@ -7,25 +7,20 @@
 #include <queue>   // Para fila de prioridade (Dijkstra)
 #include <limits>  // Para usar o "Infinito"
 
-#include "Grafo.hpp"
+#include "../include/Grafo.hpp"
+#include "../include/Leitor.hpp"
 
 using namespace std;
 
 int main() {
-    // Criando um grafo com 4 nós (0 a 3)
-    Grafo g(4);
-
-    // Conectando (como se fossem cidades e distancias)
-    g.adicionarAresta(0, 1, 2);
-    g.adicionarAresta(0, 2, 8);
-    g.adicionarAresta(1, 2, 3);
-    g.adicionarAresta(1, 3, 5);
-    g.adicionarAresta(2, 3, 4);
+    string arquivo = "../data/crd100";
+    
+    Grafo* g = Leitor::lerInstancia(arquivo);
 
     // Menu
     int escolha = 1;
     while (escolha != 0){
-        int r, alpha, interacoes, block;
+        int r, alpha, interacoes, block, d;
         cout << "Escolha o algoritmo a ser executado:\n";
         cout << "1 - Algoritmo Guloso\n";
         cout << "2 - Algoritmo Guloso Randomizado\n";
@@ -37,7 +32,18 @@ int main() {
         switch (escolha)
         {
         case 1:
-            g.GA();
+            while (true)
+            {
+                cout << "Defina a restrição de conexões por nó!\n";
+                cout << "Deve ser entre 1 e " << g->getNumeroDeVertices() - 1 << ":\n";
+                cin >> d;
+                if(d >= 1 && d <= g->getNumeroDeVertices() - 1){
+                    g->setRestricaoConexoes(d);
+                    break;
+                }
+                cout << "Valor inválido. Tente novamente.\n\n";
+            }
+            g->GA(d);
             break;
         case 2:
             while (true)
@@ -47,7 +53,7 @@ int main() {
                 if(alpha >= 0 && alpha <= 100){
                     break;
                 }
-                cout << "Valor inválido. Tente novamente.\n";
+                cout << "Valor inválido. Tente novamente.\n\n";
             }
             
             while (true)
@@ -57,9 +63,21 @@ int main() {
                 if(interacoes > 0){
                     break;
                 }
-                cout << "Valor inválido. Tente novamente.\n";
+                cout << "Valor inválido. Tente novamente.\n\n";
             }
-            g.GRASP(alpha/100, interacoes);
+
+            while (true)
+            {
+                cout << "Defina a restrição de conexões por nó!\n";
+                cout << "Deve ser entre 1 e " << g->getNumeroDeVertices() - 1 << ":\n";
+                cin >> d;
+                if(d >= 1 && d <= g->getNumeroDeVertices() - 1){
+                    g->setRestricaoConexoes(d);
+                    break;
+                }
+                cout << "Valor inválido. Tente novamente.\n\n";
+            }
+            g->GRASP(alpha/100, interacoes, d);
             break;
         case 3:
             while(true){
@@ -88,7 +106,7 @@ int main() {
                 }
                 cout << "Valor inválido. Tente novamente.\n";
             }
-            g.GRASPReativo(escolha, interacoes, block);
+            g->GRASPReativo(escolha, interacoes, block);
             break;
         case 0:
             cout << "Saindo...\n";
