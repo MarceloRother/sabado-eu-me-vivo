@@ -65,7 +65,7 @@ public:
     void adicionarAresta(int origem, int destino, int peso);
 
     // IMPLEMENTAÇÕES DOS ALGORITMOS
-    void GA();
+    void GA(int d);
     void GRASP(float alpha, int interacoes, int d);
     void GRASPReativo(int escolha, int interacoes, int block);
 };
