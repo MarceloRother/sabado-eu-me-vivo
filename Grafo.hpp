@@ -67,9 +67,10 @@ public:
     // Adicionar aresta direcionada (Origem -> Destino)
     void adicionarAresta(int origem, int destino, int peso);
 
-    // 5. Algoritmo de busca
+    // IMPLEMENTAÇÕES DOS ALGORITMOS
     void GA(int r);
     void GRASP(int r, int alpha, int interacoes);
+    void GRASPReativo(int escolha, int interacoes, int block);
 };
 
 #endif GRAFO_HPP
