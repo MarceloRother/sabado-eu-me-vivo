@@ -40,14 +40,6 @@ int main() {
             g.GA();
             break;
         case 2:
-            while(true){
-                cout << "Escolha uma porcentagem de 0 até 100:\n";
-                cin >> r;
-                if(r >= 0 && r <= 100){
-                    break;
-                }
-                cout << "Valor inválido. Tente novamente.\n";
-            }
             while (true)
             {
                 cout << "Escolha uma porcentagem de 0 até 100:\n";
@@ -67,7 +59,7 @@ int main() {
                 }
                 cout << "Valor inválido. Tente novamente.\n";
             }
-            g.GRASP(r, alpha/100, interacoes);
+            g.GRASP(alpha/100, interacoes);
             break;
         case 3:
             while(true){

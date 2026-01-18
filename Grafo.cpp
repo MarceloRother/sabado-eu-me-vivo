@@ -128,7 +128,7 @@ void Grafo::GA()
 // Não segue a lógica tradicional de um algoritmo guloso
 // Ele cria uma lista restrita de candidatos (LRC) e escolhe aleatoriamente entre eles
 // LRC baseada em um alpha fixo que define o quão "restrita" ela é
-void Grafo::GRASP(int r, int alpha, int interacoes)
+void Grafo::GRASP(int alpha, int interacoes)
 {
     cout << "Algoritmo Guloso Randomizado:\n";
     int custoFinal = 0;
@@ -145,12 +145,12 @@ void Grafo::GRASP(int r, int alpha, int interacoes)
         vector<bool> visitado(numeroDeVertices, false);
 
         // Adiciona as arestas iniciais
-        visitado[r] = true;
+        visitado[0] = true;
         for (int i = 0; i < numeroDeVertices; i++)
         {
-            if (adj[r][i] != 0)
+            if (adj[0][i] != 0)
             { // Se existe aresta
-                pq.push(Aresta(r, i, adj[r][i]));
+                pq.push(Aresta(0, i, adj[0][i]));
             }
         }
         while (!pq.empty())
@@ -158,14 +158,20 @@ void Grafo::GRASP(int r, int alpha, int interacoes)
             // Criar lista temporária de candidatos para ESTA rodada
             vector<Aresta> candidatos;
 
-            // Tenta pegar até 'k' arestas, mas ignora as inválidas
+            // Pega todas as arestas disponíveis no momento
             while (!pq.empty())
             {
                 Aresta a = pq.top();
                 pq.pop();
-                if (!visitado[a.destino])
-                {
-                    candidatos.push_back(a);
+
+                // ADAPTAÇÃO PARA RESTRIÇÃO DE 6 CONEXÕES POR NÓ
+                // Verifica se os nós possuem até 6 conexões
+                if( nos[a.origem].conexoes < 6 && nos[a.destino].conexoes < 6 ){
+                    // Só adiciona se o nó destino não foi visitado ainda
+                    if (!visitado[a.destino])
+                    {
+                        candidatos.push_back(a);
+                    }
                 }
             }
 
