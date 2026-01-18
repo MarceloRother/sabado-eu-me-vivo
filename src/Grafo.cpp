@@ -1,4 +1,4 @@
-#include "Grafo.hpp"
+#include "../include/Grafo.hpp"
 
 #include <iostream>
 #include <vector>

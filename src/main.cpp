@@ -7,20 +7,15 @@
 #include <queue>   // Para fila de prioridade (Dijkstra)
 #include <limits>  // Para usar o "Infinito"
 
-#include "Grafo.hpp"
+#include "../include/Grafo.hpp"
+#include "../include/Leitor.hpp"
 
 using namespace std;
 
 int main() {
-    // Criando um grafo com 4 nós (0 a 3)
-    Grafo g(4);
-
-    // Conectando (como se fossem cidades e distancias)
-    g.adicionarAresta(0, 1, 2);
-    g.adicionarAresta(0, 2, 8);
-    g.adicionarAresta(1, 2, 3);
-    g.adicionarAresta(1, 3, 5);
-    g.adicionarAresta(2, 3, 4);
+    string arquivo = "../data/crd100";
+    
+    Grafo* g = Leitor::lerInstancia(arquivo);
 
     // Menu
     int escolha = 1;
@@ -37,7 +32,7 @@ int main() {
         switch (escolha)
         {
         case 1:
-            g.GA();
+            g->GA();
             break;
         case 2:
             while (true)
@@ -59,7 +54,7 @@ int main() {
                 }
                 cout << "Valor inválido. Tente novamente.\n";
             }
-            g.GRASP(alpha/100, interacoes);
+            g->GRASP(alpha/100, interacoes);
             break;
         case 3:
             while(true){
@@ -88,7 +83,7 @@ int main() {
                 }
                 cout << "Valor inválido. Tente novamente.\n";
             }
-            g.GRASPReativo(escolha, interacoes, block);
+            g->GRASPReativo(escolha, interacoes, block);
             break;
         case 0:
             cout << "Saindo...\n";
