@@ -52,12 +52,14 @@ int main() {
             g.prim(m);
             break;
         case 4:
-            int r, k;
+            int r, alpha, interacoes;
             cout << "Escolha um nó de partida de 0 a " << g.getNumeroDeVertices() - 1 << ":\n";
             cin >> r;
             cout << "Escolha uma porcentagem de 0 até 100:\n";
-            cin >> k;
-            g.random(r, k/10);
+            cin >> alpha;
+            cout << "Escolha o número de iterações:\n";
+            cin >> interacoes;
+            g.GRASP(r, alpha/100, interacoes);
             break;
         case 0:
             cout << "Saindo...\n";
