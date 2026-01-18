@@ -13,7 +13,7 @@ using namespace std;
 
 int main() {
     // Criando um grafo com 4 nós (0 a 3)
-    Grafo g(4, DIRECIONADO);
+    Grafo g(4);
 
     // Conectando (como se fossem cidades e distancias)
     g.adicionarAresta(0, 1, 2);
