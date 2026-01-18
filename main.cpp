@@ -37,15 +37,7 @@ int main() {
         switch (escolha)
         {
         case 1:
-            while(true){
-                cout << "Escolha um nó de partida de 0 a " << g.getNumeroDeVertices() - 1 << ":\n";
-                cin >> r;
-                if(r >=0 && r < g.getNumeroDeVertices()){
-                    break;
-                }
-                cout << "Valor inválido. Tente novamente.\n";
-            }
-            g.GA(r);
+            g.GA();
             break;
         case 2:
             while(true){
