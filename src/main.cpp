@@ -106,7 +106,19 @@ int main() {
                 }
                 cout << "Valor inválido. Tente novamente.\n";
             }
-            g->GRASPReativo(escolha, interacoes, block);
+
+            while (true)
+            {
+                cout << "Defina a restrição de conexões por nó!\n";
+                cout << "Deve ser entre 1 e " << g->getNumeroDeVertices() - 1 << ":\n";
+                cin >> d;
+                if(d >= 1 && d <= g->getNumeroDeVertices() - 1){
+                    g->setRestricaoConexoes(d);
+                    break;
+                }
+                cout << "Valor inválido. Tente novamente.\n\n";
+            }
+            g->GRASPReativo(escolha, interacoes, block, d);
             break;
         case 0:
             cout << "Saindo...\n";

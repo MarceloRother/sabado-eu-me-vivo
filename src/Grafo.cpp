@@ -258,9 +258,8 @@ void Grafo::GRASP(float alpha, int interacoes, int d)
 
 // Implementação similar ao GRASP, mas com alpha variável baseado na escolha do usuário
 // Aqui você pode definir diferentes valores de alpha para cada nível de aleatoriedade
-void Grafo::GRASPReativo(int escolha, int interacoes, int block)
+void Grafo::GRASPReativo(int escolha, int interacoes, int block, int p)
 {
-
     // Definimos qual será a lista de alphas utilizada baseado na escolha do usuário
     vector<float> alphas;
     vector<float> probabilidades(5, 0.2); // Inicialmente iguais
@@ -292,6 +291,10 @@ void Grafo::GRASPReativo(int escolha, int interacoes, int block)
     // Roda o programa baseado no número de iterações passado pelo usuário
     for (int iter = 0; iter < interacoes; iter++)
     {
+        for(int i = 0; i < numeroDeVertices; i++) {
+            nos[i].conexoes = 0; // <--- O PULO DO GATO
+        }
+
         // Aqui é feita a atualização das probabilidades baseada no desempenho do bloco anterior
         if(iter % block == 0 && iter != 0){
             // Atualiza probabilidades baseado em desempenho
@@ -321,12 +324,12 @@ void Grafo::GRASPReativo(int escolha, int interacoes, int block)
             // 3° Melhor desemepenho (nada)
 
             // 4° Melhor desempenho (-0.1)
-            if(probabilidades[somaDesempenho[3].first] <= 0.9){
+            if(probabilidades[somaDesempenho[3].first] >= 0.2){
                 probabilidades[somaDesempenho[3].first] -= 0.1;
             }
 
             // 5° Melhor desempenho (-0.1)
-            if(probabilidades[somaDesempenho[4].first] <= 0.9){
+            if(probabilidades[somaDesempenho[4].first] >= 0.2){
                 probabilidades[somaDesempenho[4].first] -= 0.1;
             }
 
@@ -367,12 +370,13 @@ void Grafo::GRASPReativo(int escolha, int interacoes, int block)
             // Criar lista temporária de candidatos para ESTA rodada
             vector<Aresta> candidatos;
 
+
             // Insere as melhores arestas em um vector para conseguir acessar o pior caso
             while (!pq.empty())
             {
                 Aresta a = pq.top();
                 pq.pop();
-                if( nos[a.origem].conexoes < 6 && nos[a.destino].conexoes < 6 ){
+                if( nos[a.origem].conexoes < p && nos[a.destino].conexoes < p ){
                     // Só adiciona se o nó destino não foi visitado ainda
                     if (!visitado[a.destino])
                     {
@@ -429,6 +433,8 @@ void Grafo::GRASPReativo(int escolha, int interacoes, int block)
             visitado[v] = true;
             resultado.push_back(arestaEscolhida);
             custoTotal += arestaEscolhida.peso;
+            nos[u].conexoes++;
+            nos[v].conexoes++;
 
             // Adiciona os vizinhos do novo nó
             for (int i = 0; i < numeroDeVertices; i++)

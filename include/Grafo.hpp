@@ -67,7 +67,7 @@ public:
     // IMPLEMENTAÇÕES DOS ALGORITMOS
     void GA(int d);
     void GRASP(float alpha, int interacoes, int d);
-    void GRASPReativo(int escolha, int interacoes, int block);
+    void GRASPReativo(int escolha, int interacoes, int block, int p);
 };
 
 #endif GRAFO_HPP
