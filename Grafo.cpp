@@ -158,14 +158,20 @@ void Grafo::GRASP(int alpha, int interacoes)
             // Criar lista temporária de candidatos para ESTA rodada
             vector<Aresta> candidatos;
 
-            // Tenta pegar até 'k' arestas, mas ignora as inválidas
+            // Pega todas as arestas disponíveis no momento
             while (!pq.empty())
             {
                 Aresta a = pq.top();
                 pq.pop();
-                if (!visitado[a.destino])
-                {
-                    candidatos.push_back(a);
+
+                // ADAPTAÇÃO PARA RESTRIÇÃO DE 6 CONEXÕES POR NÓ
+                // Verifica se os nós possuem até 6 conexões
+                if( nos[a.origem].conexoes < 6 && nos[a.destino].conexoes < 6 ){
+                    // Só adiciona se o nó destino não foi visitado ainda
+                    if (!visitado[a.destino])
+                    {
+                        candidatos.push_back(a);
+                    }
                 }
             }
 
