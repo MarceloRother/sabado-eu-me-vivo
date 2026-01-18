@@ -32,7 +32,18 @@ int main() {
         switch (escolha)
         {
         case 1:
-            g->GA();
+            while (true)
+            {
+                cout << "Defina a restrição de conexões por nó!\n";
+                cout << "Deve ser entre 1 e " << g->getNumeroDeVertices() - 1 << ":\n";
+                cin >> d;
+                if(d >= 1 && d <= g->getNumeroDeVertices() - 1){
+                    g->setRestricaoConexoes(d);
+                    break;
+                }
+                cout << "Valor inválido. Tente novamente.\n\n";
+            }
+            g->GA(d);
             break;
         case 2:
             while (true)
