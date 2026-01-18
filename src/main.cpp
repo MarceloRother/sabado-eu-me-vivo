@@ -20,7 +20,7 @@ int main() {
     // Menu
     int escolha = 1;
     while (escolha != 0){
-        int r, alpha, interacoes, block;
+        int r, alpha, interacoes, block, d;
         cout << "Escolha o algoritmo a ser executado:\n";
         cout << "1 - Algoritmo Guloso\n";
         cout << "2 - Algoritmo Guloso Randomizado\n";
@@ -42,7 +42,7 @@ int main() {
                 if(alpha >= 0 && alpha <= 100){
                     break;
                 }
-                cout << "Valor inválido. Tente novamente.\n";
+                cout << "Valor inválido. Tente novamente.\n\n";
             }
             
             while (true)
@@ -52,9 +52,21 @@ int main() {
                 if(interacoes > 0){
                     break;
                 }
-                cout << "Valor inválido. Tente novamente.\n";
+                cout << "Valor inválido. Tente novamente.\n\n";
             }
-            g->GRASP(alpha/100, interacoes);
+
+            while (true)
+            {
+                cout << "Defina a restrição de conexões por nó!\n";
+                cout << "Deve ser entre 1 e " << g->getNumeroDeVertices() - 1 << ":\n";
+                cin >> d;
+                if(d >= 1 && d <= g->getNumeroDeVertices() - 1){
+                    g->setRestricaoConexoes(d);
+                    break;
+                }
+                cout << "Valor inválido. Tente novamente.\n\n";
+            }
+            g->GRASP(alpha/100, interacoes, d);
             break;
         case 3:
             while(true){
