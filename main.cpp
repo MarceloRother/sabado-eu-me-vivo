@@ -39,7 +39,7 @@ int main() {
             cout << "Escolha um nó de partida de 0 a "<< g.getNumeroDeVertices() - 1 << ":\n";
             int m;
             cin >> m;
-            g.prim(m);
+            g.GA(m);
             break;
         case 2:
             int r, alpha, interacoes;
@@ -52,6 +52,14 @@ int main() {
             g.GRASP(r, alpha/100, interacoes);
             break;
         case 3:
+            int alpha, interacoes, block;
+            cout << "Escolha o nível de aleatoriedade do algorítmo:\n1 - Baixo\n2 - Médio\n3 - Alto\n";
+            cin >> escolha;
+            cout << "Escolha o número de iterações:\n";
+            cin >> interacoes;
+            cout << "Escolha o tamanho do bloco de atualização de probabilidades:\n";
+            cin >> block;
+            g.GRASPReativo(escolha, interacoes, block);
             break;
         case 0:
             cout << "Saindo...\n";
