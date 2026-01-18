@@ -26,10 +26,9 @@ int main() {
     int escolha = 1;
     while (escolha != 0){
         cout << "Escolha o algoritmo a ser executado:\n";
-        cout << "1 - Dijkstra\n";
-        cout << "2 - Floyd-Warshall\n";
-        cout << "3 - Prim\n";
-        cout << "4 - Algoritmo Guloso Randomizado\n";
+        cout << "1 - Algoritmo Guloso\n";
+        cout << "2 - Algoritmo Guloso Randomizado\n";
+        cout << "3 - Algorito Guloso Randomizado Reativo\n";
         cout << "0 - Sair\n";
 
         cin >> escolha;
@@ -38,20 +37,11 @@ int main() {
         {
         case 1:
             cout << "Escolha um nó de partida de 0 a "<< g.getNumeroDeVertices() - 1 << ":\n";
-            int n;
-            cin >> n;
-            //g.dijkstra(n);
-            break;
-        case 2:
-            //g.floyd();
-            break;
-        case 3:
-            cout << "Escolha um nó de partida de 0 a "<< g.getNumeroDeVertices() - 1 << ":\n";
             int m;
             cin >> m;
             g.prim(m);
             break;
-        case 4:
+        case 2:
             int r, alpha, interacoes;
             cout << "Escolha um nó de partida de 0 a " << g.getNumeroDeVertices() - 1 << ":\n";
             cin >> r;
@@ -60,6 +50,8 @@ int main() {
             cout << "Escolha o número de iterações:\n";
             cin >> interacoes;
             g.GRASP(r, alpha/100, interacoes);
+            break;
+        case 3:
             break;
         case 0:
             cout << "Saindo...\n";
