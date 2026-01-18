@@ -59,7 +59,7 @@ public:
 
     // IMPLEMENTAÇÕES DOS ALGORITMOS
     void GA();
-    void GRASP(int r, int alpha, int interacoes);
+    void GRASP(int alpha, int interacoes);
     void GRASPReativo(int escolha, int interacoes, int block);
 };
 

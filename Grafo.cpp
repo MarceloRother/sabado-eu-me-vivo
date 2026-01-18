@@ -128,7 +128,7 @@ void Grafo::GA()
 // Não segue a lógica tradicional de um algoritmo guloso
 // Ele cria uma lista restrita de candidatos (LRC) e escolhe aleatoriamente entre eles
 // LRC baseada em um alpha fixo que define o quão "restrita" ela é
-void Grafo::GRASP(int r, int alpha, int interacoes)
+void Grafo::GRASP(int alpha, int interacoes)
 {
     cout << "Algoritmo Guloso Randomizado:\n";
     int custoFinal = 0;
@@ -145,12 +145,12 @@ void Grafo::GRASP(int r, int alpha, int interacoes)
         vector<bool> visitado(numeroDeVertices, false);
 
         // Adiciona as arestas iniciais
-        visitado[r] = true;
+        visitado[0] = true;
         for (int i = 0; i < numeroDeVertices; i++)
         {
-            if (adj[r][i] != 0)
+            if (adj[0][i] != 0)
             { // Se existe aresta
-                pq.push(Aresta(r, i, adj[r][i]));
+                pq.push(Aresta(0, i, adj[0][i]));
             }
         }
         while (!pq.empty())
