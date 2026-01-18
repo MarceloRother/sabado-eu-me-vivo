@@ -67,14 +67,8 @@ public:
     // Adicionar aresta direcionada (Origem -> Destino)
     void adicionarAresta(int origem, int destino, int peso);
 
-    // 4. Algoritmos de caminho mínimo
-    //void dijkstra(int inicio);
-    //void floyd();
-
     // 5. Algoritmo de busca
-    void buscaEmProfundidade(int inicio);
-    void kruskal();
-    void prim(int r);
+    void GA(int r);
     void GRASP(int r, int alpha, int interacoes);
 };
 
