@@ -37,27 +37,73 @@ int main() {
         switch (escolha)
         {
         case 1:
-            cout << "Escolha um nó de partida de 0 a "<< g.getNumeroDeVertices() - 1 << ":\n";
-            int m;
-            cin >> m;
-            g.GA(m);
+            while(true){
+                cout << "Escolha um nó de partida de 0 a " << g.getNumeroDeVertices() - 1 << ":\n";
+                cin >> r;
+                if(r >=0 && r < g.getNumeroDeVertices()){
+                    break;
+                }
+                cout << "Valor inválido. Tente novamente.\n";
+            }
+            g.GA(r);
             break;
         case 2:
-            cout << "Escolha um nó de partida de 0 a " << g.getNumeroDeVertices() - 1 << ":\n";
-            cin >> r;
-            cout << "Escolha uma porcentagem de 0 até 100:\n";
-            cin >> alpha;
-            cout << "Escolha o número de iterações:\n";
-            cin >> interacoes;
+            while(true){
+                cout << "Escolha uma porcentagem de 0 até 100:\n";
+                cin >> r;
+                if(r >= 0 && r <= 100){
+                    break;
+                }
+                cout << "Valor inválido. Tente novamente.\n";
+            }
+            while (true)
+            {
+                cout << "Escolha uma porcentagem de 0 até 100:\n";
+                cin >> alpha;
+                if(alpha >= 0 && alpha <= 100){
+                    break;
+                }
+                cout << "Valor inválido. Tente novamente.\n";
+            }
+            
+            while (true)
+            {
+                cout << "Escolha o número de iterações:\n";
+                cin >> interacoes;
+                if(interacoes > 0){
+                    break;
+                }
+                cout << "Valor inválido. Tente novamente.\n";
+            }
             g.GRASP(r, alpha/100, interacoes);
             break;
         case 3:
-            cout << "Escolha o nível de aleatoriedade do algorítmo:\n1 - Baixo\n2 - Médio\n3 - Alto\n";
-            cin >> escolha;
-            cout << "Escolha o número de iterações:\n";
-            cin >> interacoes;
-            cout << "Escolha o tamanho do bloco de atualização de probabilidades:\n";
-            cin >> block;
+            while(true){
+                cout << "Escolha o nível de aleatoriedade do algorítmo:\n1 - Baixo\n2 - Médio\n3 - Alto\n";
+                cin >> escolha;
+                if(escolha >= 1 && escolha <= 3){
+                    break;
+                }
+                cout << "Valor inválido. Tente novamente.\n";
+            }
+            
+            while(true){
+                cout << "Escolha o número de iterações:\n";
+                cin >> interacoes;
+                if(interacoes > 0){
+                    break;
+                }
+                cout << "Valor inválido. Tente novamente.\n";
+            }
+            
+            while(true){
+                cout << "Escolha o tamanho do bloco de atualização das probabilidades:\n";
+                cin >> block;
+                if(block > 0 && block <= interacoes){
+                    break;
+                }
+                cout << "Valor inválido. Tente novamente.\n";
+            }
             g.GRASPReativo(escolha, interacoes, block);
             break;
         case 0:
