@@ -25,6 +25,7 @@ int main() {
     // Menu
     int escolha = 1;
     while (escolha != 0){
+        int r, alpha, interacoes, block;
         cout << "Escolha o algoritmo a ser executado:\n";
         cout << "1 - Algoritmo Guloso\n";
         cout << "2 - Algoritmo Guloso Randomizado\n";
@@ -42,7 +43,6 @@ int main() {
             g.GA(m);
             break;
         case 2:
-            int r, alpha, interacoes;
             cout << "Escolha um nó de partida de 0 a " << g.getNumeroDeVertices() - 1 << ":\n";
             cin >> r;
             cout << "Escolha uma porcentagem de 0 até 100:\n";
@@ -52,7 +52,6 @@ int main() {
             g.GRASP(r, alpha/100, interacoes);
             break;
         case 3:
-            int alpha, interacoes, block;
             cout << "Escolha o nível de aleatoriedade do algorítmo:\n1 - Baixo\n2 - Médio\n3 - Alto\n";
             cin >> escolha;
             cout << "Escolha o número de iterações:\n";

@@ -7,6 +7,7 @@
 #include <limits>     // Para usar o "Infinito"
 #include <functional> // Para std::function
 #include <algorithm>
+#include <random>     // Para geração de números aleatórios
 
 using namespace std;
 
@@ -236,6 +237,7 @@ void Grafo::GRASP(int r, int alpha, int interacoes)
 // Aqui você pode definir diferentes valores de alpha para cada nível de aleatoriedade
 void Grafo::GRASPReativo(int escolha, int interacoes, int block)
 {
+
     // Definimos qual será a lista de alphas utilizada baseado na escolha do usuário
     vector<float> alphas;
     vector<float> probabilidades(5, 0.2); // Inicialmente iguais
@@ -245,31 +247,39 @@ void Grafo::GRASPReativo(int escolha, int interacoes, int block)
         alphas = {0.1, 0.2, 0.3, 0.4, 0.5};
         break; // Baixo
     case 2:
-        alphas = {0.1, 0.3, 0.5, 0.7, 0.9};
+        alphas = {0.3, 0.4, 0.5, 0.6, 0.7};
         break; // Médio
     case 3:
-        alphas = {0.1, 0.4, 0.6, 0.8, 1.0};
+        alphas = {0.6, 0.7, 0.8, 0.9, 1.0};
         break; // Alto
     default:
         break;
     }
 
+    // Configuração do Gerador Randomico
+    random_device rd;
+    mt19937 gen(rd());
+
     cout << "Algoritmo Guloso Randomizado Reativo:\n";
     int custoFinal = 0;
-    vector<vector<int>> desempenho(5, vector<int>(interacoes, 0)); // Para armazenar desempenho por alpha
 
+    // Para armazenar desempenho por alpha: [alpha][{custo, iteracao}]
+    vector<vector<pair<int, int>>> desempenho(5, vector<pair<int, int>>());
+
+    // Roda o programa baseado no número de iterações passado pelo usuário
     for (int iter = 0; iter < interacoes; iter++)
     {
         // Aqui é feita a atualização das probabilidades baseada no desempenho do bloco anterior
         if(iter % block == 0 && iter != 0){
             // Atualiza probabilidades baseado em desempenho
-            vector<pair<int, int>> somaDesempenho(5, {0, 0}); // {indice, soma}
+            vector<pair<int, int>> somaDesempenho(5, {0, 0}); // [alpha][{indice, soma}]
             for(int i = 0; i < 5; i++){
                 for(int j = 0; j < desempenho[i].size(); j++){
-                    somaDesempenho[i].first = i;
-                    somaDesempenho[i].second += desempenho[i][j];
+                    somaDesempenho[i].first = i; // insere uma chave para localizar
+                    somaDesempenho[i].second += desempenho[i][j].first; // soma os custos
                 }
             }
+
             // Ordena pelo desempenho (menor é melhor)
             sort(somaDesempenho.begin(), somaDesempenho.end(), [](auto &left, auto &right) {
                 return left.second < right.second;
@@ -287,124 +297,139 @@ void Grafo::GRASPReativo(int escolha, int interacoes, int block)
 
             // 3° Melhor desemepenho (nada)
 
-            // 4° Pior desempenho (-0.1)
+            // 4° Melhor desempenho (-0.1)
             if(probabilidades[somaDesempenho[3].first] <= 0.9){
                 probabilidades[somaDesempenho[3].first] -= 0.1;
             }
 
-            // 5° Pior desempenho (-0.1)
+            // 5° Melhor desempenho (-0.1)
             if(probabilidades[somaDesempenho[4].first] <= 0.9){
                 probabilidades[somaDesempenho[4].first] -= 0.1;
             }
 
         }
+
+        // Cria a distribuição baseada no vetor de probabilidades
+        discrete_distribution<> d(probabilidades.begin(), probabilidades.end());
+
+        // Sorteia um índice baseado nas probabilidades
+        int indiceSorteado = d(gen); // Retorna 0, 1, 2 ou 3
+
+        // Pega o Alpha correspondente
+        float alphaEscolhido = alphas[indiceSorteado];
+
+        // LÓGICA PRINCIPAL DO GRASP REATIVO
+        // A partir daqui, a lógica é igual ao GRASP normal, mas usando o alpha dinâmico
         vector<Aresta> resultado;
-            int custoTotal = 0;
+        int custoTotal = 0;
 
-            // Min-Heap para pegar sempre a aresta mais leve automaticamente
-            priority_queue<Aresta, vector<Aresta>, ComparaPeso> pq;
+        // Min-Heap para pegar sempre a aresta mais leve automaticamente
+        priority_queue<Aresta, vector<Aresta>, ComparaPeso> pq;
 
-            // Vetor para marcar nós visitados
-            vector<bool> visitado(numeroDeVertices, false);
+        // Vetor para marcar nós visitados
+        vector<bool> visitado(numeroDeVertices, false);
 
-            // Adiciona as arestas iniciais
-            visitado[r] = true;
-            for (int i = 0; i < numeroDeVertices; i++)
-            {
-                if (adj[r][i] != 0)
-                { // Se existe aresta
-                    pq.push(Aresta(r, i, adj[r][i]));
-                }
+        // Adiciona as arestas iniciais
+        visitado[0] = true;
+        for (int i = 0; i < numeroDeVertices; i++)
+        {
+            if (adj[0][i] != 0)
+            { // Se existe aresta
+                pq.push(Aresta(0, i, adj[0][i]));
             }
+        }
+        while (!pq.empty())
+        {
+            // Criar lista temporária de candidatos para ESTA rodada
+            vector<Aresta> candidatos;
+
+            // Insere as melhores arestas em um vector para conseguir acessar o pior caso
             while (!pq.empty())
             {
-                // Criar lista temporária de candidatos para ESTA rodada
-                vector<Aresta> candidatos;
-
-                // Tenta pegar até 'k' arestas, mas ignora as inválidas
-                while (!pq.empty())
+                Aresta a = pq.top();
+                pq.pop();
+                if (!visitado[a.destino])
                 {
-                    Aresta a = pq.top();
-                    pq.pop();
-                    if (!visitado[a.destino])
-                    {
-                        candidatos.push_back(a);
-                    }
+                    candidatos.push_back(a);
                 }
+            }
 
-                // Se não achou nenhum candidato válido, acabou (ou grafo desconexo)
-                if (candidatos.empty())
+            // Se não achou nenhum candidato válido, acabou (ou grafo desconexo)
+            if (candidatos.empty())
+                break;
+
+            // Identifica c_min e c_max
+            float c_min = candidatos.front().peso; // Como saiu da PQ, o 1º é o menor
+            float c_max = candidatos.back().peso;  // O último é o maior
+
+            // Calcula o Limite
+            float limite = c_min + alphaEscolhido * (c_max - c_min);
+
+            // Cria a LRC filtrando pelo limite
+            vector<Aresta> LRC;
+            for (auto &a : candidatos)
+            {
+                if (a.peso <= limite)
+                {
+                    LRC.push_back(a);
+                }
+                else
+                {
+                    // Como está ordenado, se passou do limite, os próximos também passarão
+                    // Mas PRECISAMOS salvar para devolver pra PQ depois
                     break;
-
-                // Identifica c_min e c_max
-                float c_min = candidatos.front().peso; // Como saiu da PQ, o 1º é o menor
-                float c_max = candidatos.back().peso;  // O último é o maior
-
-                // Calcula o Limite (Threshold)
-                float limite = c_min + alpha * (c_max - c_min);
-
-                // 4. Cria a LRC (Lista Restrita de Candidatos) filtrando pelo limite
-                vector<Aresta> LRC;
-                for (auto &a : candidatos)
-                {
-                    if (a.peso <= limite)
-                    {
-                        LRC.push_back(a);
-                    }
-                    else
-                    {
-                        // Como está ordenado, se passou do limite, os próximos também passarão
-                        // Mas PRECISAMOS salvar para devolver pra PQ depois
-                        break;
-                    }
-                }
-
-                // Sorteia um índice entre os candidatos válidos coletados
-                int escolha = rand() % LRC.size();
-                Aresta arestaEscolhida = LRC[escolha];
-
-                // Devolve os NÃO escolhidos para a fila principal
-                for (auto &a : candidatos)
-                {
-                    // Cuidado para não devolver a aresta escolhida nem arestas para nós já visitados
-                    if (a.destino != arestaEscolhida.destino && !visitado[a.destino])
-                    {
-                        pq.push(a);
-                    }
-                }
-
-                // Processa a aresta vencedora
-                int u = arestaEscolhida.origem; // Se precisar
-                int v = arestaEscolhida.destino;
-
-                // Altera o valor de visitado
-                visitado[v] = true;
-                resultado.push_back(arestaEscolhida);
-                custoTotal += arestaEscolhida.peso;
-
-                // Adiciona os vizinhos do novo nó
-                for (int i = 0; i < numeroDeVertices; i++)
-                {
-                    // Assumindo matriz de adjacência (peso 0 = sem aresta)
-                    if (adj[v][i] != 0 && !visitado[i])
-                    {
-                        pq.push(Aresta(v, i, adj[v][i]));
-                    }
                 }
             }
-            // Impressão
-            cout << "Iteração " << iter + 1 << ":\n";
-            for (const auto &aresta : resultado)
+
+            // Sorteia um índice entre os candidatos válidos coletados
+            int escolha = rand() % LRC.size();
+            Aresta arestaEscolhida = LRC[escolha];
+
+            // Devolve os NÃO escolhidos para a fila principal
+            for (auto &a : candidatos)
             {
-                cout << aresta.origem << " -- " << aresta.destino
-                     << " (Peso: " << aresta.peso << ")\n";
+                if (a.destino != arestaEscolhida.destino && !visitado[a.destino])
+                {
+                    pq.push(a);
+                }
             }
-            cout << "Custo Total: " << custoTotal << endl;
 
-            if (iter == 0 || custoTotal < custoFinal)
+            // Processa a aresta vencedora
+            int u = arestaEscolhida.origem; // Se precisar
+            int v = arestaEscolhida.destino;
+
+            // Altera o valor de visitado
+            visitado[v] = true;
+            resultado.push_back(arestaEscolhida);
+            custoTotal += arestaEscolhida.peso;
+
+            // Adiciona os vizinhos do novo nó
+            for (int i = 0; i < numeroDeVertices; i++)
             {
-                custoFinal = custoTotal;
+                // Assumindo matriz de adjacência (peso 0 = sem aresta)
+                if (adj[v][i] != 0 && !visitado[i])
+                {
+                    pq.push(Aresta(v, i, adj[v][i]));
+                }
             }
+        }
+        // Impressão
+        cout << "Iteração " << iter + 1 << ":\n";
+        for (const auto &aresta : resultado)
+        {
+            cout << aresta.origem << " -- " << aresta.destino
+                    << " (Peso: " << aresta.peso << ")\n";
+        }
+        cout << "Custo Total: " << custoTotal << endl;
+
+        // Verifica se o desempenho deste alpha nesta iteração foi o melhor e atualiza o valor da variável
+        if (iter == 0 || custoTotal < custoFinal)
+        {
+            custoFinal = custoTotal;
+        }
+
+        // Insere o valor no vetor de desempenho
+        desempenho[indiceSorteado].push_back({custoTotal, iter});
     }
 
     cout << "Melhor custo: " << custoFinal << endl;
