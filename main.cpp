@@ -25,11 +25,11 @@ int main() {
     // Menu
     int escolha = 1;
     while (escolha != 0){
+        int r, alpha, interacoes, block;
         cout << "Escolha o algoritmo a ser executado:\n";
-        cout << "1 - Dijkstra\n";
-        cout << "2 - Floyd-Warshall\n";
-        cout << "3 - Prim\n";
-        cout << "4 - Algoritmo Guloso Randomizado\n";
+        cout << "1 - Algoritmo Guloso\n";
+        cout << "2 - Algoritmo Guloso Randomizado\n";
+        cout << "3 - Algorito Guloso Randomizado Reativo\n";
         cout << "0 - Sair\n";
 
         cin >> escolha;
@@ -38,21 +38,11 @@ int main() {
         {
         case 1:
             cout << "Escolha um nó de partida de 0 a "<< g.getNumeroDeVertices() - 1 << ":\n";
-            int n;
-            cin >> n;
-            //g.dijkstra(n);
-            break;
-        case 2:
-            //g.floyd();
-            break;
-        case 3:
-            cout << "Escolha um nó de partida de 0 a "<< g.getNumeroDeVertices() - 1 << ":\n";
             int m;
             cin >> m;
-            g.prim(m);
+            g.GA(m);
             break;
-        case 4:
-            int r, alpha, interacoes;
+        case 2:
             cout << "Escolha um nó de partida de 0 a " << g.getNumeroDeVertices() - 1 << ":\n";
             cin >> r;
             cout << "Escolha uma porcentagem de 0 até 100:\n";
@@ -60,6 +50,15 @@ int main() {
             cout << "Escolha o número de iterações:\n";
             cin >> interacoes;
             g.GRASP(r, alpha/100, interacoes);
+            break;
+        case 3:
+            cout << "Escolha o nível de aleatoriedade do algorítmo:\n1 - Baixo\n2 - Médio\n3 - Alto\n";
+            cin >> escolha;
+            cout << "Escolha o número de iterações:\n";
+            cin >> interacoes;
+            cout << "Escolha o tamanho do bloco de atualização de probabilidades:\n";
+            cin >> block;
+            g.GRASPReativo(escolha, interacoes, block);
             break;
         case 0:
             cout << "Saindo...\n";
