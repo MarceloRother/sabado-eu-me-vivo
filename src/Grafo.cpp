@@ -49,7 +49,7 @@ void Grafo::adicionarAresta(int origem, int destino, int peso)
 // IMPLEMENTAÇÕES DOS ALGORITMOS
 
 // GA para encontrar a Árvore Geradora Mínima (AGM) baseado em Prim
-void Grafo::GA(int d)
+ResultadoAlgoritmo Grafo::GA(int d)
 {
     vector<Aresta> resultado;
     int custoTotal = 0;
@@ -117,16 +117,22 @@ void Grafo::GA(int d)
     if (resultado.size() != numeroDeVertices - 1) {
         cout << "ALERTA: Nao foi possivel conectar todos os nos com a restricao d=" << d << endl;
     }
+    ResultadoAlgoritmo resultadoGA;
+    resultadoGA.melhorCusto = custoTotal;
+    resultadoGA.iteracaoMelhor = 0;
+    resultadoGA.alpha = 0.0f;
+    return resultadoGA;
 }
 
 // Algoritmo Guloso Randomizado (baseado em Prim)
 // Não segue a lógica tradicional de um algoritmo guloso
 // Ele cria uma lista restrita de candidatos (LRC) e escolhe aleatoriamente entre eles
 // LRC baseada em um alpha fixo que define o quão "restrita" ela é
-void Grafo::GRASP(float alpha, int interacoes, int d)
+ResultadoAlgoritmo Grafo::GRASP(float alpha, int interacoes, int d)
 {
     cout << "Algoritmo Guloso Randomizado:\n";
     int custoFinal = 0;
+    int iteracaoMelhor = 0;
 
     for (int iter = 0; iter < interacoes; iter++)
     {
@@ -250,15 +256,21 @@ void Grafo::GRASP(float alpha, int interacoes, int d)
         if (iter == 0 || custoTotal < custoFinal)
         {
             custoFinal = custoTotal;
+            iteracaoMelhor = iter;
         }
     }
 
     cout << "Melhor custo: " << custoFinal << endl;
+    ResultadoAlgoritmo resultado;
+    resultado.melhorCusto = custoFinal;
+    resultado.iteracaoMelhor = iteracaoMelhor;
+    resultado.alpha = alpha;
+    return resultado;
 }
 
 // Implementação similar ao GRASP, mas com alpha variável baseado na escolha do usuário
 // Aqui você pode definir diferentes valores de alpha para cada nível de aleatoriedade
-void Grafo::GRASPReativo(int escolha, int interacoes, int block, int p)
+ResultadoAlgoritmo Grafo::GRASPReativo(int escolha, int interacoes, int block, int p)
 {
     // Definimos qual será a lista de alphas utilizada baseado na escolha do usuário
     vector<float> alphas;
@@ -266,13 +278,13 @@ void Grafo::GRASPReativo(int escolha, int interacoes, int block, int p)
     switch (escolha)
     {
     case 1:
-        alphas = {0.1, 0.2, 0.3, 0.4, 0.5};
+        alphas = {0.1};
         break; // Baixo
     case 2:
-        alphas = {0.3, 0.4, 0.5, 0.6, 0.7};
+        alphas = {0.5};
         break; // Médio
     case 3:
-        alphas = {0.6, 0.7, 0.8, 0.9, 1.0};
+        alphas = {1.0};
         break; // Alto
     default:
         break;
@@ -284,6 +296,8 @@ void Grafo::GRASPReativo(int escolha, int interacoes, int block, int p)
 
     cout << "Algoritmo Guloso Randomizado Reativo:\n";
     int custoFinal = 0;
+    int iteracaoMelhor = 0;
+    float alphaMelhor = 0.0f;
 
     // Para armazenar desempenho por alpha: [alpha][{custo, iteracao}]
     vector<vector<pair<int, int>>> desempenho(5, vector<pair<int, int>>());
@@ -459,6 +473,8 @@ void Grafo::GRASPReativo(int escolha, int interacoes, int block, int p)
         if (iter == 0 || custoTotal < custoFinal)
         {
             custoFinal = custoTotal;
+            iteracaoMelhor = iter;
+            alphaMelhor = alphaEscolhido;
         }
 
         // Insere o valor no vetor de desempenho
@@ -466,4 +482,9 @@ void Grafo::GRASPReativo(int escolha, int interacoes, int block, int p)
     }
 
     cout << "Melhor custo: " << custoFinal << endl;
+    ResultadoAlgoritmo resultado;
+    resultado.melhorCusto = custoFinal;
+    resultado.iteracaoMelhor = iteracaoMelhor;
+    resultado.alpha = alphaMelhor;
+    return resultado;
 }

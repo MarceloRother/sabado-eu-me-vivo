@@ -6,11 +6,30 @@
 #include <list>
 #include <queue>   // Para fila de prioridade (Dijkstra)
 #include <limits>  // Para usar o "Infinito"
+#include <fstream>
+#include <chrono>
 
 #include "../include/Grafo.hpp"
 #include "../include/Leitor.hpp"
 
 using namespace std;
+
+void salvarResultadosCSV(const string& algoritmo, int melhorCusto, int iteracaoMelhor, float alpha, long long tempoExecucaoMs) {
+    // Verifica se o arquivo existe para adicionar cabeçalho na primeira vez
+    ifstream verifica("../resultados.csv");
+    bool arquivoExiste = verifica.good();
+    verifica.close();
+    
+    ofstream arquivo("../resultados.csv", ios::app);
+    if (arquivo.is_open()) {
+        // Adiciona cabeçalho se o arquivo não existia
+        if (!arquivoExiste) {
+            arquivo << "Algoritmo,MelhorCusto,IteracaoMelhor,Alpha,TempoExecucaoMs\n";
+        }
+        arquivo << algoritmo << "," << melhorCusto << "," << iteracaoMelhor << "," << alpha << "," << tempoExecucaoMs << "\n";
+        arquivo.close();
+    }
+}
 
 int main() {
     string arquivo = "../data/crd100";
@@ -43,7 +62,13 @@ int main() {
                 }
                 cout << "Valor inválido. Tente novamente.\n\n";
             }
-            g->GA(d);
+            {
+                auto inicio = chrono::high_resolution_clock::now();
+                ResultadoAlgoritmo resultado = g->GA(d);
+                auto fim = chrono::high_resolution_clock::now();
+                auto duracao = chrono::duration_cast<chrono::milliseconds>(fim - inicio).count();
+                salvarResultadosCSV("guloso", resultado.melhorCusto, resultado.iteracaoMelhor, resultado.alpha, duracao);
+            }
             break;
         case 2:
             while (true)
@@ -77,7 +102,13 @@ int main() {
                 }
                 cout << "Valor inválido. Tente novamente.\n\n";
             }
-            g->GRASP(alpha/100, interacoes, d);
+            {
+                auto inicio = chrono::high_resolution_clock::now();
+                ResultadoAlgoritmo resultado = g->GRASP(alpha/100.0, interacoes, d);
+                auto fim = chrono::high_resolution_clock::now();
+                auto duracao = chrono::duration_cast<chrono::milliseconds>(fim - inicio).count();
+                salvarResultadosCSV("grasp", resultado.melhorCusto, resultado.iteracaoMelhor, resultado.alpha, duracao);
+            }
             break;
         case 3:
             while(true){
@@ -118,7 +149,13 @@ int main() {
                 }
                 cout << "Valor inválido. Tente novamente.\n\n";
             }
-            g->GRASPReativo(escolha, interacoes, block, d);
+            {
+                auto inicio = chrono::high_resolution_clock::now();
+                ResultadoAlgoritmo resultado = g->GRASPReativo(escolha, interacoes, block, d);
+                auto fim = chrono::high_resolution_clock::now();
+                auto duracao = chrono::duration_cast<chrono::milliseconds>(fim - inicio).count();
+                salvarResultadosCSV("grasp_reativo", resultado.melhorCusto, resultado.iteracaoMelhor, resultado.alpha, duracao);
+            }
             break;
         case 0:
             cout << "Saindo...\n";

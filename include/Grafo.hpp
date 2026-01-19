@@ -21,6 +21,12 @@ struct No {
 };
 
 // A Classe Grafo
+struct ResultadoAlgoritmo {
+    int melhorCusto;
+    int iteracaoMelhor;
+    float alpha;      // pode ser 0 para GA
+};
+
 class Grafo {
 private:
     int numeroDeVertices;
@@ -65,9 +71,9 @@ public:
     void adicionarAresta(int origem, int destino, int peso);
 
     // IMPLEMENTAÇÕES DOS ALGORITMOS
-    void GA(int d);
-    void GRASP(float alpha, int interacoes, int d);
-    void GRASPReativo(int escolha, int interacoes, int block, int p);
+    ResultadoAlgoritmo GA(int d);
+    ResultadoAlgoritmo GRASP(float alpha, int interacoes, int d);
+    ResultadoAlgoritmo GRASPReativo(int escolha, int interacoes, int block, int p);
 };
 
-#endif GRAFO_HPP
+#endif // GRAFO_HPP
