@@ -73,7 +73,7 @@ public:
     // IMPLEMENTAÇÕES DOS ALGORITMOS
     ResultadoAlgoritmo GA(int d);
     ResultadoAlgoritmo GRASP(float alpha, int interacoes, int d);
-    ResultadoAlgoritmo GRASPReativo(int escolha, int interacoes, int block, int p);
+    ResultadoAlgoritmo GRASPReativo(int escolha, int interacoes, int block, int p, int seed);
 };
 
 #endif // GRAFO_HPP

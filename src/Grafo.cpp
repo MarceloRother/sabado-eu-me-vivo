@@ -270,7 +270,7 @@ ResultadoAlgoritmo Grafo::GRASP(float alpha, int interacoes, int d)
 
 // Implementação similar ao GRASP, mas com alpha variável baseado na escolha do usuário
 // Aqui você pode definir diferentes valores de alpha para cada nível de aleatoriedade
-ResultadoAlgoritmo Grafo::GRASPReativo(int escolha, int interacoes, int block, int p)
+ResultadoAlgoritmo Grafo::GRASPReativo(int escolha, int interacoes, int block, int p, int seed)
 {
     // Definimos qual será a lista de alphas utilizada baseado na escolha do usuário
     vector<float> alphas;
@@ -292,7 +292,7 @@ ResultadoAlgoritmo Grafo::GRASPReativo(int escolha, int interacoes, int block, i
 
     // Configuração do Gerador Randomico
     random_device rd;
-    mt19937 gen(rd());
+    mt19937 gen(seed);
 
     cout << "Algoritmo Guloso Randomizado Reativo:\n";
     int custoFinal = 0;

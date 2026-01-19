@@ -1,6 +1,3 @@
-//TODO: fazer verificação para saber se m está dentro do escopo
-
-
 #include <iostream>
 #include <vector>
 #include <list>
@@ -8,6 +5,8 @@
 #include <limits>  // Para usar o "Infinito"
 #include <fstream>
 #include <chrono>
+#include <ctime>   // Necessário para time()
+#include <cstdlib> // Necessário para srand() e atoi()
 
 #include "../include/Grafo.hpp"
 #include "../include/Leitor.hpp"
@@ -31,9 +30,13 @@ void salvarResultadosCSV(const string& algoritmo, int melhorCusto, int iteracaoM
     }
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     string arquivo = "../data/crd100";
-    
+
+    unsigned int seed;
+
+    srand(seed);
+
     Grafo* g = Leitor::lerInstancia(arquivo);
 
     // Menu
@@ -102,6 +105,16 @@ int main() {
                 }
                 cout << "Valor inválido. Tente novamente.\n\n";
             }
+            while(true)
+            {
+                cout << "Digite a seed para o gerador de números aleatórios\n Caso queira uma seed baseada no tempo, digite 0:\n";
+                cin >> seed;
+                if(seed == 0){
+                    seed = static_cast<unsigned int>(time(0));
+                }
+                srand(seed);
+                break;
+            }
             {
                 auto inicio = chrono::high_resolution_clock::now();
                 ResultadoAlgoritmo resultado = g->GRASP(alpha/100.0, interacoes, d);
@@ -149,9 +162,19 @@ int main() {
                 }
                 cout << "Valor inválido. Tente novamente.\n\n";
             }
+            while(true)
+            {
+                cout << "Digite a seed para o gerador de números aleatórios\n Caso queira uma seed baseada no tempo, digite 0:\n";
+                cin >> seed;
+                if(seed == 0){
+                    seed = static_cast<unsigned int>(time(0));
+                }
+                srand(seed);
+                break;
+            }
             {
                 auto inicio = chrono::high_resolution_clock::now();
-                ResultadoAlgoritmo resultado = g->GRASPReativo(escolha, interacoes, block, d);
+                ResultadoAlgoritmo resultado = g->GRASPReativo(escolha, interacoes, block, d, seed);
                 auto fim = chrono::high_resolution_clock::now();
                 auto duracao = chrono::duration_cast<chrono::milliseconds>(fim - inicio).count();
                 salvarResultadosCSV("grasp_reativo", resultado.melhorCusto, resultado.iteracaoMelhor, resultado.alpha, duracao);
