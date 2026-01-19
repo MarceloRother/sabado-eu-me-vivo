@@ -73,7 +73,10 @@ public:
     // IMPLEMENTAÇÕES DOS ALGORITMOS
     ResultadoAlgoritmo GA(int d);
     ResultadoAlgoritmo GRASP(float alpha, int interacoes, int d);
+    // Versão do menu (mantém compatibilidade): escolha define um "nível", mas hoje mapeia pra um único alpha.
     ResultadoAlgoritmo GRASPReativo(int escolha, int interacoes, int block, int p, int seed);
+    // Versão batch/experimentos: permite passar 3+ valores de alpha.
+    ResultadoAlgoritmo GRASPReativo(const vector<float>& alphas, int interacoes, int block, int p, int seed);
 };
 
 #endif // GRAFO_HPP

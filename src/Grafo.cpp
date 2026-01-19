@@ -278,20 +278,19 @@ ResultadoAlgoritmo Grafo::GRASPReativo(int escolha, int interacoes, int block, i
     switch (escolha)
     {
     case 1:
-        alphas = {0.1};
+        alphas = {0.1, 0.2, 0.3, 0.4, 0.5};
         break; // Baixo
     case 2:
-        alphas = {0.5};
+        alphas = {0.3, 0.4, 0.5, 0.6, 0.7};
         break; // Médio
     case 3:
-        alphas = {1.0};
+        alphas = {0.6, 0.7, 0.8, 0.9, 1.0};
         break; // Alto
     default:
         break;
     }
 
     // Configuração do Gerador Randomico
-    random_device rd;
     mt19937 gen(seed);
 
     cout << "Algoritmo Guloso Randomizado Reativo:\n";
@@ -487,4 +486,162 @@ ResultadoAlgoritmo Grafo::GRASPReativo(int escolha, int interacoes, int block, i
     resultado.iteracaoMelhor = iteracaoMelhor;
     resultado.alpha = alphaMelhor;
     return resultado;
+}
+
+// Versão batch/experimentos: permite 3+ valores de alpha no reativo
+ResultadoAlgoritmo Grafo::GRASPReativo(const vector<float>& alphas, int interacoes, int block, int p, int seed)
+{
+    if (alphas.empty())
+    {
+        ResultadoAlgoritmo r;
+        r.melhorCusto = 0;
+        r.iteracaoMelhor = 0;
+        r.alpha = 0.0f;
+        return r;
+    }
+
+    mt19937 gen(seed);
+
+    cout << "Algoritmo Guloso Randomizado Reativo (batch):\n";
+    int custoFinal = 0;
+    int iteracaoMelhor = 0;
+    float alphaMelhor = alphas[0];
+
+    vector<float> probabilidades(alphas.size(), 1.0f / (float)alphas.size());
+    vector<vector<pair<int, int>>> desempenho(alphas.size(), vector<pair<int, int>>());
+
+    for (int iter = 0; iter < interacoes; iter++)
+    {
+        for (int i = 0; i < numeroDeVertices; i++)
+        {
+            nos[i].conexoes = 0;
+        }
+
+        if (iter % block == 0 && iter != 0)
+        {
+            vector<pair<int, int>> somaDesempenho(alphas.size(), {0, 0});
+            for (int i = 0; i < (int)alphas.size(); i++)
+            {
+                somaDesempenho[i].first = i;
+                for (int j = 0; j < (int)desempenho[i].size(); j++)
+                {
+                    somaDesempenho[i].second += desempenho[i][j].first;
+                }
+            }
+
+            sort(somaDesempenho.begin(), somaDesempenho.end(), [](auto &left, auto &right) {
+                return left.second < right.second;
+            });
+
+            // Ajuste simples de probabilidades: reforça os melhores e reduz os piores, mantendo limites.
+            auto inc = [&](int idx, float delta) {
+                probabilidades[idx] = max(0.05f, min(0.95f, probabilidades[idx] + delta));
+            };
+
+            inc(somaDesempenho[0].first, +0.10f);
+            if (somaDesempenho.size() > 1) inc(somaDesempenho[1].first, +0.05f);
+            if (somaDesempenho.size() > 1) inc(somaDesempenho[somaDesempenho.size() - 1].first, -0.10f);
+            if (somaDesempenho.size() > 2) inc(somaDesempenho[somaDesempenho.size() - 2].first, -0.05f);
+        }
+
+        discrete_distribution<> dist(probabilidades.begin(), probabilidades.end());
+        int indiceSorteado = dist(gen);
+        float alphaEscolhido = alphas[indiceSorteado];
+
+        vector<Aresta> resultado;
+        int custoTotal = 0;
+        priority_queue<Aresta, vector<Aresta>, ComparaPeso> pq;
+        vector<bool> visitado(numeroDeVertices, false);
+
+        visitado[0] = true;
+        for (int i = 0; i < numeroDeVertices; i++)
+        {
+            if (adj[0][i] != 0)
+            {
+                pq.push(Aresta(0, i, adj[0][i]));
+            }
+        }
+
+        while (!pq.empty())
+        {
+            vector<Aresta> candidatos;
+
+            while (!pq.empty())
+            {
+                Aresta a = pq.top();
+                pq.pop();
+                if (nos[a.origem].conexoes < p && nos[a.destino].conexoes < p)
+                {
+                    if (!visitado[a.destino])
+                    {
+                        candidatos.push_back(a);
+                    }
+                }
+            }
+
+            if (candidatos.empty())
+                break;
+
+            float c_min = candidatos.front().peso;
+            float c_max = candidatos.back().peso;
+            float limite = c_min + alphaEscolhido * (c_max - c_min);
+
+            vector<Aresta> LRC;
+            for (auto &a : candidatos)
+            {
+                if (a.peso <= limite)
+                {
+                    LRC.push_back(a);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            int escolha = rand() % LRC.size();
+            Aresta arestaEscolhida = LRC[escolha];
+
+            for (auto &a : candidatos)
+            {
+                if (a.destino != arestaEscolhida.destino && !visitado[a.destino])
+                {
+                    pq.push(a);
+                }
+            }
+
+            int u = arestaEscolhida.origem;
+            int v = arestaEscolhida.destino;
+
+            visitado[v] = true;
+            resultado.push_back(arestaEscolhida);
+            custoTotal += arestaEscolhida.peso;
+            nos[u].conexoes++;
+            nos[v].conexoes++;
+
+            for (int i = 0; i < numeroDeVertices; i++)
+            {
+                if (adj[v][i] != 0 && !visitado[i])
+                {
+                    pq.push(Aresta(v, i, adj[v][i]));
+                }
+            }
+        }
+
+        if (iter == 0 || custoTotal < custoFinal)
+        {
+            custoFinal = custoTotal;
+            iteracaoMelhor = iter;
+            alphaMelhor = alphaEscolhido;
+        }
+
+        desempenho[indiceSorteado].push_back({custoTotal, iter});
+    }
+
+    cout << "Melhor custo: " << custoFinal << endl;
+    ResultadoAlgoritmo r;
+    r.melhorCusto = custoFinal;
+    r.iteracaoMelhor = iteracaoMelhor;
+    r.alpha = alphaMelhor;
+    return r;
 }
