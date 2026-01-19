@@ -7,6 +7,7 @@
 #include <chrono>
 #include <ctime>   // Necessário para time()
 #include <cstdlib> // Necessário para srand() e atoi()
+#include <random>
 #include <sstream>
 #include <unordered_map>
 #include <iomanip>
@@ -48,11 +49,11 @@ static void salvarResultadosCSVRun(
 
 void salvarResultadosCSV(const string& algoritmo, unsigned int seed, int melhorCusto, int iteracaoMelhor, float alpha, long long tempoExecucaoMs) {
     // Verifica se o arquivo existe para adicionar cabeçalho na primeira vez
-    ifstream verifica("../resultados.csv");
+    ifstream verifica("resultados.csv");
     bool arquivoExiste = verifica.good();
     verifica.close();
     
-    ofstream arquivo("../resultados.csv", ios::app);
+    ofstream arquivo("resultados.csv", ios::app);
     if (arquivo.is_open()) {
         // Adiciona cabeçalho se o arquivo não existia
         if (!arquivoExiste) {
@@ -68,7 +69,7 @@ static void salvarResultadosCSVResumo(
     const string& instancia,
     int d,
     const string& algoritmo,
-    unsigned int seed0,
+    unsigned int seed,
     int runs,
     int bestKnown,
     int melhorDas10,
@@ -83,7 +84,7 @@ static void salvarResultadosCSVResumo(
     if (!arquivo.is_open()) return;
 
     if (!arquivoExiste) {
-        arquivo << "Instancia,d,Algoritmo,Seed0,Seeds,Runs,BestKnown,MelhorDas10,MediaMelhor10,TempoMedioSeg10,RPD_Melhor(%),RPD_Media(%)\n";
+        arquivo << "Instancia,d,Algoritmo,Seed,Seeds,Runs,BestKnown,MelhorDas10,MediaMelhor10,TempoMedioSeg10,RPD_Melhor(%),RPD_Media(%)\n";
     }
 
     auto rpd = [&](double valor) -> double {
@@ -92,9 +93,9 @@ static void salvarResultadosCSVResumo(
     };
 
     // Seeds usadas no batch: seed0..seed0+(runs-1)
-    string seedsRange = to_string(seed0) + "-" + to_string(seed0 + (unsigned int)max(0, runs - 1));
+    string seedsRange = to_string(seed) + "-" + to_string(seed + (unsigned int)max(0, runs - 1));
 
-    arquivo << instancia << "," << d << "," << algoritmo << "," << seed0 << "," << seedsRange << "," << runs << ","
+    arquivo << instancia << "," << d << "," << algoritmo << "," << seed << "," << seedsRange << "," << runs << ","
             << bestKnown << ","
             << melhorDas10 << "," << fixed << setprecision(6) << mediaMelhor10 << ","
             << fixed << setprecision(6) << tempoMedioSeg10 << ","
@@ -196,7 +197,7 @@ int main(int argc, char* argv[]) {
     int graspIters = 30;
     int reativoIters = 300;
     int reativoBlock = 30;
-    unsigned int seed0 = 12345;
+    unsigned int seed = 12345; // default (batch). Pode ser sobrescrito via --seed
 
     for (int i = 1; i < argc; i++) {
         string arg = argv[i];
@@ -207,7 +208,7 @@ int main(int argc, char* argv[]) {
         else if (arg == "--grasp-iters" && i + 1 < argc) graspIters = atoi(argv[++i]);
         else if (arg == "--reativo-iters" && i + 1 < argc) reativoIters = atoi(argv[++i]);
         else if (arg == "--reativo-block" && i + 1 < argc) reativoBlock = atoi(argv[++i]);
-        else if (arg == "--seed0" && i + 1 < argc) seed0 = (unsigned int)atoi(argv[++i]);
+        else if (arg == "--seed" && i + 1 < argc) seed = (unsigned int)atoi(argv[++i]);
     }
 
     if (modoBatch) {
@@ -241,8 +242,8 @@ int main(int argc, char* argv[]) {
                     double somaTempo = 0.0;
 
                     for (int run = 0; run < runs; run++) {
-                        unsigned int seed = seed0 + (unsigned int)run;
-                        srand(seed);
+                        unsigned int runSeed = seed + (unsigned int)run;
+                        srand(runSeed);
                         auto ini = chrono::high_resolution_clock::now();
                         ResultadoAlgoritmo r = g->GA(d);
                         auto fim = chrono::high_resolution_clock::now();
@@ -252,10 +253,10 @@ int main(int argc, char* argv[]) {
                         somaMelhor += (double)r.melhorCusto;
                         somaTempo += tempoSeg;
 
-                        salvarResultadosCSVRun(csvRuns, inst, d, "guloso", run, seed, r.melhorCusto, r.iteracaoMelhor, r.alpha, tempoSeg);
+                        salvarResultadosCSVRun(csvRuns, inst, d, "guloso", run, runSeed, r.melhorCusto, r.iteracaoMelhor, r.alpha, tempoSeg);
                     }
 
-                    salvarResultadosCSVResumo(csvResumo, inst, d, "guloso", seed0, runs, bestKnown, melhorDas10, somaMelhor / runs, somaTempo / runs);
+                    salvarResultadosCSVResumo(csvResumo, inst, d, "guloso", seed, runs, bestKnown, melhorDas10, somaMelhor / runs, somaTempo / runs);
                 }
 
                 // ---------- GRASP (randomizado): 3 alfas * 10 seeds; construtivo >= 30 ----------
@@ -265,8 +266,8 @@ int main(int argc, char* argv[]) {
                     double somaTempo = 0.0;
 
                     for (int run = 0; run < runs; run++) {
-                        unsigned int seed = seed0 + (unsigned int)run;
-                        srand(seed);
+                        unsigned int runSeed = seed + (unsigned int)run;
+                        srand(runSeed);
                         auto ini = chrono::high_resolution_clock::now();
                         ResultadoAlgoritmo r = g->GRASP(alpha, graspIters, d);
                         auto fim = chrono::high_resolution_clock::now();
@@ -277,11 +278,11 @@ int main(int argc, char* argv[]) {
                         somaTempo += tempoSeg;
 
                         string nomeAlg = string("grasp_alpha=") + to_string(alpha);
-                        salvarResultadosCSVRun(csvRuns, inst, d, nomeAlg, run, seed, r.melhorCusto, r.iteracaoMelhor, r.alpha, tempoSeg);
+                        salvarResultadosCSVRun(csvRuns, inst, d, nomeAlg, run, runSeed, r.melhorCusto, r.iteracaoMelhor, r.alpha, tempoSeg);
                     }
 
                     string nomeAlgResumo = string("grasp_alpha=") + to_string(alpha);
-                    salvarResultadosCSVResumo(csvResumo, inst, d, nomeAlgResumo, seed0, runs, bestKnown, melhorDas10, somaMelhor / runs, somaTempo / runs);
+                    salvarResultadosCSVResumo(csvResumo, inst, d, nomeAlgResumo, seed, runs, bestKnown, melhorDas10, somaMelhor / runs, somaTempo / runs);
                 }
 
                 // ---------- GRASP Reativo: construtivo >= 300; blocos 30..50 ----------
@@ -291,10 +292,10 @@ int main(int argc, char* argv[]) {
                     double somaTempo = 0.0;
 
                     for (int run = 0; run < runs; run++) {
-                        unsigned int seed = seed0 + (unsigned int)run;
-                        srand(seed);
+                        unsigned int runSeed = seed + (unsigned int)run;
+                        srand(runSeed);
                         auto ini = chrono::high_resolution_clock::now();
-                        ResultadoAlgoritmo r = g->GRASPReativo(alphas, reativoIters, reativoBlock, d, (int)seed);
+                        ResultadoAlgoritmo r = g->GRASPReativo(alphas, reativoIters, reativoBlock, d, (int)runSeed);
                         auto fim = chrono::high_resolution_clock::now();
                         double tempoSeg = chrono::duration_cast<chrono::duration<double>>(fim - ini).count();
 
@@ -302,10 +303,10 @@ int main(int argc, char* argv[]) {
                         somaMelhor += (double)r.melhorCusto;
                         somaTempo += tempoSeg;
 
-                        salvarResultadosCSVRun(csvRuns, inst, d, "grasp_reativo", run, seed, r.melhorCusto, r.iteracaoMelhor, r.alpha, tempoSeg);
+                        salvarResultadosCSVRun(csvRuns, inst, d, "grasp_reativo", run, runSeed, r.melhorCusto, r.iteracaoMelhor, r.alpha, tempoSeg);
                     }
 
-                    salvarResultadosCSVResumo(csvResumo, inst, d, "grasp_reativo", seed0, runs, bestKnown, melhorDas10, somaMelhor / runs, somaTempo / runs);
+                    salvarResultadosCSVResumo(csvResumo, inst, d, "grasp_reativo", seed, runs, bestKnown, melhorDas10, somaMelhor / runs, somaTempo / runs);
                 }
 
                 delete g;
@@ -321,7 +322,7 @@ int main(int argc, char* argv[]) {
     // Caminho padrão para o modo interativo (diretório raiz do projeto)
     string arquivo = "data/crd100";
 
-    unsigned int seed = (unsigned int)time(0);
+    seed = (unsigned int)time(0);
     srand(seed);
 
     Grafo* g = Leitor::lerInstancia(arquivo);
