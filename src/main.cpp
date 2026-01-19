@@ -197,7 +197,7 @@ int main(int argc, char* argv[]) {
     int graspIters = 30;
     int reativoIters = 300;
     int reativoBlock = 30;
-    unsigned int seed = 12345; // default (batch). Pode ser sobrescrito via --seed
+    unsigned int seed = 0; // será definida depois se necessário
 
     for (int i = 1; i < argc; i++) {
         string arg = argv[i];
@@ -212,6 +212,10 @@ int main(int argc, char* argv[]) {
     }
 
     if (modoBatch) {
+        // Se seed não foi passada via --seed, usa time(0) para variar entre execuções
+        if (seed == 0) {
+            seed = (unsigned int)time(0);
+        }
         // Caminhos relativos ao diretório raiz do projeto
         const string pastaData = "data";
         const string csvRuns = "resultados_runs.csv";
@@ -242,8 +246,7 @@ int main(int argc, char* argv[]) {
                     double somaTempo = 0.0;
 
                     for (int run = 0; run < runs; run++) {
-                        unsigned int runSeed = seed + (unsigned int)run;
-                        srand(runSeed);
+                        // Guloso não usa seed (determinístico), mas registramos 0 para consistência
                         auto ini = chrono::high_resolution_clock::now();
                         ResultadoAlgoritmo r = g->GA(d);
                         auto fim = chrono::high_resolution_clock::now();
@@ -253,10 +256,10 @@ int main(int argc, char* argv[]) {
                         somaMelhor += (double)r.melhorCusto;
                         somaTempo += tempoSeg;
 
-                        salvarResultadosCSVRun(csvRuns, inst, d, "guloso", run, runSeed, r.melhorCusto, r.iteracaoMelhor, r.alpha, tempoSeg);
+                        salvarResultadosCSVRun(csvRuns, inst, d, "guloso", run, 0, r.melhorCusto, r.iteracaoMelhor, r.alpha, tempoSeg);
                     }
 
-                    salvarResultadosCSVResumo(csvResumo, inst, d, "guloso", seed, runs, bestKnown, melhorDas10, somaMelhor / runs, somaTempo / runs);
+                    salvarResultadosCSVResumo(csvResumo, inst, d, "guloso", 0, runs, bestKnown, melhorDas10, somaMelhor / runs, somaTempo / runs);
                 }
 
                 // ---------- GRASP (randomizado): 3 alfas * 10 seeds; construtivo >= 30 ----------

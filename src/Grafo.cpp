@@ -292,7 +292,7 @@ ResultadoAlgoritmo Grafo::GRASPReativo(int escolha, int interacoes, int block, i
 
     // Configuração do Gerador Randomico
     random_device rd;
-    mt19937 gen(rd());
+    mt19937 gen(seed);
 
     cout << "Algoritmo Guloso Randomizado Reativo:\n";
     int custoFinal = 0;
@@ -504,7 +504,7 @@ ResultadoAlgoritmo Grafo::GRASPReativo(const vector<float>& alphas, int interaco
     // Usa gerador independente baseado em random_device,
     // apenas para sortear o índice do alpha na lista.
     random_device rd;
-    mt19937 gen(rd());
+    mt19937 gen(seed);
 
     cout << "Algoritmo Guloso Randomizado Reativo (batch):\n";
     int custoFinal = 0;
