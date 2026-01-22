@@ -1,0 +1,6 @@
+Algoritmo,Seed,MelhorCusto,IteracaoMelhor,Alpha,TempoExecucaoMs
+grasp_reativo,1769029261,35740,98,0.6,4679
+grasp_reativo,1769029332,33959,5,0.6,4590
+guloso,1769029802,7987,0,0,46
+grasp,1769029832,393,0,0.3,28
+grasp_reativo,1769029938,72,5,1,94

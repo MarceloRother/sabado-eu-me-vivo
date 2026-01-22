@@ -157,6 +157,28 @@ static vector<int> parseIntList(const string& s) {
     return out;
 }
 
+static string encontrarCaminhoData(const string& arquivo) {
+    // Tenta primeiro no diretório atual (se executar da raiz)
+    string caminho1 = "data/" + arquivo;
+    ifstream teste1(caminho1);
+    if (teste1.is_open()) {
+        teste1.close();
+        return "data/" + arquivo;
+    }
+    
+    // Tenta um nível acima (se executar de dentro de bin/)
+    string caminho2 = "../data/" + arquivo;
+    ifstream teste2(caminho2);
+    if (teste2.is_open()) {
+        teste2.close();
+        return "../data/" + arquivo;
+    }
+    
+    // Se não encontrou, retorna o caminho padrão (vai dar erro depois)
+    return caminho1;
+}
+
+
 static vector<string> listarInstanciasCrd(const string& pastaData) {
     // Lista hardcoded das instâncias crd disponíveis
     vector<string> inst;
@@ -191,7 +213,7 @@ int main(int argc, char* argv[]) {
     //   --reativo-block 30
     //   --seed0 12345   (seed base; cada run usa seed0 + runIdx)
     bool modoBatch = false;
-    string alphasStr = "0.1,0.3,0.5";
+    string alphasStr = "0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0";
     string dsStr = "2,3,4,5";
     int runs = 10;
     int graspIters = 30;
@@ -225,7 +247,8 @@ int main(int argc, char* argv[]) {
         vector<float> alphas = parseFloatList(alphasStr);
         vector<int> ds = parseIntList(dsStr);
 
-        auto bestKnownMap = carregarBestKnownPorInstanciaD("data/bestSolutions.txt", instancias, ds);
+        string caminhoBestKnown = encontrarCaminhoData("bestSolutions.txt");
+        auto bestKnownMap = carregarBestKnownPorInstanciaD(caminhoBestKnown, instancias, ds);
 
         for (auto &inst : instancias) {
             string caminhoInst = pastaData + "/" + inst;
@@ -322,8 +345,8 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    // Caminho padrão para o modo interativo (diretório raiz do projeto)
-    string arquivo = "data/crd100";
+    // Caminho padrão para o modo interativo - detecta automaticamente
+    string arquivo = encontrarCaminhoData("crd100");
 
     seed = (unsigned int)time(0);
     srand(seed);

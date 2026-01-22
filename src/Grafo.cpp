@@ -498,6 +498,7 @@ ResultadoAlgoritmo Grafo::GRASPReativo(const vector<float>& alphas, int interaco
         r.melhorCusto = 0;
         r.iteracaoMelhor = 0;
         r.alpha = 0.0f;
+        r.grau = 0;
         return r;
     }
 
@@ -507,6 +508,9 @@ ResultadoAlgoritmo Grafo::GRASPReativo(const vector<float>& alphas, int interaco
     mt19937 gen(seed);
 
     cout << "Algoritmo Guloso Randomizado Reativo (batch):\n";
+    ResultadoAlgoritmo resultadoFinal;
+    resultadoFinal.grau = 0;
+
     int custoFinal = 0;
     int iteracaoMelhor = 0;
     float alphaMelhor = alphas[0];
@@ -618,6 +622,7 @@ ResultadoAlgoritmo Grafo::GRASPReativo(const vector<float>& alphas, int interaco
             int v = arestaEscolhida.destino;
 
             visitado[v] = true;
+            resultadoFinal.grau++;
             resultado.push_back(arestaEscolhida);
             custoTotal += arestaEscolhida.peso;
             nos[u].conexoes++;
@@ -632,7 +637,7 @@ ResultadoAlgoritmo Grafo::GRASPReativo(const vector<float>& alphas, int interaco
             }
         }
 
-        if (iter == 0 || custoTotal < custoFinal)
+        if (iter == 0 || custoTotal < custoFinal && resultadoFinal.grau == numeroDeVertices - 1)
         {
             custoFinal = custoTotal;
             iteracaoMelhor = iter;
@@ -647,5 +652,6 @@ ResultadoAlgoritmo Grafo::GRASPReativo(const vector<float>& alphas, int interaco
     r.melhorCusto = custoFinal;
     r.iteracaoMelhor = iteracaoMelhor;
     r.alpha = alphaMelhor;
+    r.grau = resultadoFinal.grau;
     return r;
 }

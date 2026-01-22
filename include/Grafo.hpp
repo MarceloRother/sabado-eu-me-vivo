@@ -24,7 +24,8 @@ struct No {
 struct ResultadoAlgoritmo {
     int melhorCusto;
     int iteracaoMelhor;
-    float alpha;      // pode ser 0 para GA
+    float alpha; 
+    int grau;
 };
 
 class Grafo {
